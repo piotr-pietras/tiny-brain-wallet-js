@@ -10,6 +10,7 @@ export const promptCreateTransaction = (context: Context) => {
   printWelcome();
 
   const { account } = context.wallet;
+  const { decimals } = account;
 
   inq
     .prompt<{ address: string; value: string }>([
@@ -20,14 +21,15 @@ export const promptCreateTransaction = (context: Context) => {
       },
       {
         name: "value",
-        message: "2)How much do you want to send (in satoshi)",
+        message: "2)How much do you want to send",
         type: "input",
       },
     ])
     .then(async ({ address, value }) => {
       const transaction = new TransactionBTC(account);
       try {
-        await transaction.create(address, parseInt(value), "medium");
+        const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
+        await transaction.create(address, parseInt(v), "medium");
         context.wallet.transaction = transaction;
         promptSendTransaction(context);
       } catch (err) {

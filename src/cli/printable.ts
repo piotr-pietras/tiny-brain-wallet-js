@@ -1,3 +1,7 @@
+import { Blockchains } from "../common/blockchain.types.js";
+import { AccountBTC } from "../utils/AccountBTC.js";
+import { TransactionBTC } from "../utils/TransactionBTC.js";
+
 export const log = console.log;
 
 export const boxedLog = (line: any) => {
@@ -36,19 +40,34 @@ export const printBalance = (
   log("-------------------------------------------\n");
 };
 
-export const printTransactionInfo = (info: {
-  balance: number;
-  value: number;
-  fees: number;
-}) => {
-  const { balance, value, fees } = info;
+export const printTransactionInfo = (
+  account: AccountBTC,
+  transaction: TransactionBTC,
+  marketPrice: number
+) => {
+  const { balance, blockchain, decimals } = account;
+  const { address, fee, value } = transaction;
+  const amountCoins = value / Math.pow(10, decimals);
+  const amountUsd = ((value * marketPrice) / Math.pow(10, decimals)).toFixed(2);
+  const feeCoins = fee / Math.pow(10, decimals);
+  const feeUsd = ((fee * marketPrice) / Math.pow(10, decimals)).toFixed(2);
+  const balanceCoins = (balance - value - fee) / Math.pow(10, decimals);
+  const balanceUsd = (
+    ((balance - value - fee) * marketPrice) /
+    Math.pow(10, decimals)
+  ).toFixed(2);
+
   log("-------------------------------------------");
-  log("Your TX object was created successfully!");
-  log("Check address, value and fees TWICE!");
+  log("Your tx was created successfully!");
+  log("Check address, value and fee TWICE before sign!");
   log("-------------------------------------------");
-  log(`Current balance: \n -> ${balance}`);
-  log(`Output: \n -> ${value}`);
-  log(`Fees: \n -> ${fees}`);
-  log(`Balance after transaction: \n -> ${balance - value - fees}`);
+  log("Destination:");
+  log(`   -> ${address}`);
+  log("Amount:");
+  log(`   -> ${value} (${amountCoins} ${blockchain}) (${amountUsd} usd)`);
+  log("Fee:");
+  log(`   -> ${fee} (${feeCoins} ${blockchain}) (${feeUsd} usd)`);
+  log("Balance after transaction:");
+  log(`   -> ${balance} (${balanceCoins} ${blockchain}) (${balanceUsd} usd)`);
   log("-------------------------------------------");
 };

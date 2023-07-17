@@ -19,6 +19,9 @@ export class TransactionBTC extends Helpers {
   private account: AccountBTC;
   private psbt: Psbt;
   fee: number;
+  value: number;
+  address: string;
+  priority: Priority;
 
   constructor(account: AccountBTC) {
     super();
@@ -26,13 +29,17 @@ export class TransactionBTC extends Helpers {
   }
 
   public async create(address: string, value: number, priority: Priority) {
+    this.value = value;
+    this.address = address;
+    this.priority = priority;
+
     const { utxos, net } = this.account;
     const network = this.getNetwork(net);
     const inputs = await this.prepareInputs(utxos);
     if (!utxos.length) throw "No utxos";
 
-    const fee = await this.calcFee(address, value, inputs, priority);
-    const outputs = this.prepareOutputs(address, value, fee, this.account);
+    this.fee = await this.calcFee(address, value, inputs, priority);
+    const outputs = this.prepareOutputs(address, value, this.fee, this.account);
     this.psbt = new Psbt({ network }).addInputs(inputs).addOutputs(outputs);
     return this;
   }
@@ -82,7 +89,8 @@ export class TransactionBTC extends Helpers {
     fee: number,
     account: AccountBTC
   ) {
-    if (account.balance - value - fee < 0) throw "Not enough funds";
+    if (account.balance - value - fee < 0)
+      throw `Not enough funds\n (Estimated fee: ${fee})`;
     return [
       {
         address,
