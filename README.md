@@ -1,6 +1,6 @@
 # tiny-brain-wallet-js
 
-Nothing fancy just a very tiny brain wallet built upon **Block Deamon API**.
+Nothing fancy just a very tiny brain wallet built upon **Block Daemon API**.
 Type any sentences or phrases **only you know** to retrieve your keys and make some transactions. _(do not use on mainnet yet)_
 
 https://github.com/piotr-pietras/tiny-brain-wallet-js/assets/80528901/70293f5c-1b67-4bce-90a9-b9109dc31c5d
