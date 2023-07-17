@@ -52,6 +52,7 @@ export class TransactionBTC {
     const fees = (await getFeeEstimation(getParams(this.account)))
       ?.estimated_fees;
     const feeRate = fees && fees[priority];
+    //TO DO find easier way to calc fee
     const size = new Psbt({ network })
       .addInputs(inputs)
       .addOutputs(noFeeOutputs)
@@ -91,7 +92,7 @@ export class TransactionBTC {
         value,
       },
       {
-        address: account.addressP2PKH,
+        address: account.address,
         value: account.balance - value - fee,
       },
     ];

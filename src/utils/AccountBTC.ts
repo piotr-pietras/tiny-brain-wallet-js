@@ -1,18 +1,14 @@
 import { sha256 } from "@noble/hashes/sha256";
-import bs58 from "bs58";
-import ripemd160 from "ripemd160";
 import { Blockchains, Net } from "../common/blockchain.types.js";
-import { networks, ECPair, ECPairInterface } from "bitcoinjs-lib";
+import { networks, ECPair, ECPairInterface, payments } from "bitcoinjs-lib";
 import { getListOfTx } from "../api/universal/getListOfUtxo.js";
 import { getParams } from "../api/params.js";
-
-const ADR_MAIN_NET_PREFIX = "00";
-const ADR_TEST_NET_PREFIX = "6F";
 
 interface UTXO {
   txid: string;
   index: number;
   value: number;
+  type: string;
 }
 
 export class AccountBTC {
@@ -22,7 +18,7 @@ export class AccountBTC {
   decimals = 8;
 
   ECPair: ECPairInterface;
-  addressP2PKH: string;
+  address: string;
   utxos: UTXO[];
 
   constructor(phrase: string, net: Net) {
@@ -31,25 +27,22 @@ export class AccountBTC {
     const network = net === Net.MAIN ? bitcoin : testnet;
     const privKey = this.phraseToPrivKey(phrase);
     this.ECPair = ECPair.fromPrivateKey(privKey, { network });
-    const pubKey = this.ECPair.publicKey;
-    this.addressP2PKH = this.toAddressP2PKH(pubKey);
+    const addresses = this.toAddress(this.ECPair.publicKey, net);
+    //TO DO enabled p2wpkh transaction
+    this.address = addresses["p2pkh"];
   }
 
   private phraseToPrivKey(phrase: string) {
     return Buffer.from(sha256(phrase));
   }
 
-  private toAddressP2PKH(pubKey: Buffer) {
-    const prefix =
-      this.net === Net.MAIN ? ADR_MAIN_NET_PREFIX : ADR_TEST_NET_PREFIX;
-    const base = sha256(Buffer.from(pubKey));
+  private toAddress(pubKey: Buffer, net: Net) {
+    const { bitcoin, testnet } = networks;
+    const network = net === Net.MAIN ? bitcoin : testnet;
+    const p2pkh = payments.p2pkh({ network, pubkey: pubKey });
+    const p2wpkh = payments.p2wpkh({ network, pubkey: pubKey });
 
-    const ripemd = new ripemd160().update(Buffer.from(base)).digest();
-    const ripemdPrefixed = Buffer.concat([Buffer.from(prefix, "hex"), ripemd]);
-    const checksum = Buffer.from(sha256(sha256(ripemdPrefixed)).slice(0, 4));
-    const ripemdChecksum = Buffer.concat([ripemdPrefixed, checksum]);
-
-    return bs58.encode(ripemdChecksum);
+    return { p2pkh: p2pkh.address, p2wpkh: p2wpkh.address };
   }
 
   public async initizalize() {
@@ -62,11 +55,7 @@ export class AccountBTC {
     let pageToken;
     let isMore = true;
     while (isMore) {
-      const list = await getListOfTx(
-        this.addressP2PKH,
-        getParams(this),
-        pageToken
-      );
+      const list = await getListOfTx(this.address, getParams(this), pageToken);
 
       if (list.meta && list.meta.paging.next_page_token) {
         pageToken = list.meta.paging.next_page_token;
@@ -76,7 +65,7 @@ export class AccountBTC {
 
       list.data.forEach(({ value, mined: { index, tx_id, meta } }) => {
         if (meta.script_type === "pubkeyhash")
-          utxos.push({ txid: tx_id, index, value });
+          utxos.push({ txid: tx_id, index, value, type: meta.script_type });
       });
     }
     return utxos;

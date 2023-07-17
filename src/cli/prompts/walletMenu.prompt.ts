@@ -8,11 +8,11 @@ import {
   printWelcome,
 } from "../printable.js";
 import { promptCreateTransaction } from "./createTransaction.prompt.js";
-import { Blockchains } from "../../common/blockchain.types.js";
 
 enum Choices {
   TRANSACTION = "Make transaction",
   BALANCE = "Check balance",
+  UTXOS = "List all utxos",
   KEYS = "Show your keys (unsafe)",
   LOGOUT = "Logout",
 }
@@ -22,14 +22,15 @@ export const promptWalletMenu = (context: Context, before?: () => void) => {
   printWelcome();
   before && before();
 
-  const { blockchain, net, decimals, balance, addressP2PKH, keysHex } =
-    context.wallet.account;
+  const { account } = context.wallet;
+  const { blockchain, net, decimals, balance, address, keysHex, utxos } =
+    account;
 
   inq
     .prompt<{ wallet: Choices }>([
       {
         name: "wallet",
-        message: `${blockchain}-${net} => address: ${addressP2PKH}`,
+        message: `${blockchain}-${net} => address: ${address}`,
         type: "list",
         choices: Object.values(Choices),
       },
@@ -40,9 +41,16 @@ export const promptWalletMenu = (context: Context, before?: () => void) => {
           promptCreateTransaction(context);
           break;
         case Choices.BALANCE:
-          promptWalletMenu(context, () =>
-            printBalance(balance, decimals, blockchain)
-          );
+          promptWalletMenu(context, async () => {
+            await account.initizalize();
+            printBalance(balance, decimals, blockchain);
+          });
+          break;
+        case Choices.UTXOS:
+          promptWalletMenu(context, async () => {
+            await account.initizalize();
+            boxedLog(utxos);
+          });
           break;
         case Choices.KEYS:
           promptWalletMenu(context, () => printKeys(keysHex));
