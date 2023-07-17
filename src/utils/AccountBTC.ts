@@ -3,7 +3,7 @@ import { Blockchains, Net } from "../common/blockchain.types.js";
 import { ECPair, ECPairInterface, payments } from "bitcoinjs-lib";
 import { getListOfTx } from "../api/universal/getListOfUtxo.js";
 import { getParams } from "../api/params.js";
-import { Helpers } from "./Helpers.js";
+import { HelpersBTC } from "./HelpersBTC.js";
 
 interface UTXO {
   txid: string;
@@ -12,7 +12,7 @@ interface UTXO {
   type: string;
 }
 
-export class AccountBTC extends Helpers {
+export class AccountBTC extends HelpersBTC {
   blockchain = Blockchains.BTC;
   net: Net;
   balance: number = 0;

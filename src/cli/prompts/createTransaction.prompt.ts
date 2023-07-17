@@ -29,7 +29,7 @@ export const promptCreateTransaction = (context: Context) => {
       const transaction = new TransactionBTC(account);
       try {
         const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
-        await transaction.create(address, parseInt(v), "medium");
+        await transaction.create(address, parseInt(v), "fast");
         context.wallet.transaction = transaction;
         promptSendTransaction(context);
       } catch (err) {

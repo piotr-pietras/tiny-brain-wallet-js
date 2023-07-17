@@ -1,7 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node ./build/cli",
+    "start": "node ./build/src/cli",
+    "test": "npx mocha build/tests/**/*.js",
     "build": "npx tsc"
   },
   "dependencies": {
@@ -10,6 +11,7 @@
     "inquirer": "9.2.7"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.1",
     "@types/node": "20.2.5",
     "typescript": "5.1.3"
   }

@@ -2,10 +2,9 @@ import { getRawTx } from "../api/native/getRawTx.js";
 import { getParams } from "../api/params.js";
 import { getFeeEstimation } from "../api/universal/getFeeEstimation.js";
 import { submitSignedTx } from "../api/universal/submitSignedTx.js";
-import { Net } from "../common/blockchain.types.js";
 import { AccountBTC } from "./AccountBTC.js";
-import { Psbt, networks } from "bitcoinjs-lib";
-import { Helpers } from "./Helpers.js";
+import { Psbt } from "bitcoinjs-lib";
+import { HelpersBTC } from "./HelpersBTC.js";
 
 type Priority = "fast" | "medium" | "slow";
 
@@ -15,7 +14,7 @@ interface Input {
   nonWitnessUtxo: Buffer;
 }
 
-export class TransactionBTC extends Helpers {
+export class TransactionBTC extends HelpersBTC {
   private account: AccountBTC;
   private psbt: Psbt;
   fee: number;

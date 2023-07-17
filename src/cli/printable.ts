@@ -11,7 +11,7 @@ export const boxedLog = (line: any) => {
 };
 
 export const printWelcome = () => {
-  log("Welcome to TinyBrainWallet");
+  log("Welcome to tiny-brain-wallet-js");
   log(`
     /\\_____/\\
    /  o   o  \\
