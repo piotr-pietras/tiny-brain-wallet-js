@@ -3,7 +3,8 @@
 Nothing fancy just a very tiny brain wallet built upon **Block Cypher API**.
 Type any sentences or phrases **only you know** to retrieve your keys and make some transactions. _(do not use on mainnet yet)_
 
-https://i.imgur.com/04xleeI.mp4
+https://github.com/piotr-pietras/tiny-brain-wallet-js/assets/80528901/a8e0b70c-0ebf-477c-bca5-011f7613d623
+
 #### Start
 
 ```
@@ -21,7 +22,7 @@ make run
 
 #### Current features
 
-- btc transaction (only p2pkh at this momement)
+- btc transaction (only p2pkh at this moment)
 - eth transaction is coming soon ...
 
 #### Vision
