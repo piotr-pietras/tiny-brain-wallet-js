@@ -5,6 +5,7 @@ import { submitSignedTx } from "../api/universal/submitSignedTx.js";
 import { Net } from "../common/blockchain.types.js";
 import { AccountBTC } from "./AccountBTC.js";
 import { Psbt, networks } from "bitcoinjs-lib";
+import { Helpers } from "./Helpers.js";
 
 type Priority = "fast" | "medium" | "slow";
 
@@ -14,18 +15,19 @@ interface Input {
   nonWitnessUtxo: Buffer;
 }
 
-export class TransactionBTC {
+export class TransactionBTC extends Helpers {
   private account: AccountBTC;
   private psbt: Psbt;
   fee: number;
 
   constructor(account: AccountBTC) {
+    super();
     this.account = account;
   }
 
   public async create(address: string, value: number, priority: Priority) {
-    const { utxos } = this.account;
-    const network = this.getNetwork();
+    const { utxos, net } = this.account;
+    const network = this.getNetwork(net);
     const inputs = await this.prepareInputs(utxos);
     if (!utxos.length) throw "No utxos";
 
@@ -35,19 +37,14 @@ export class TransactionBTC {
     return this;
   }
 
-  private getNetwork() {
-    const { net } = this.account;
-    const { bitcoin, testnet } = networks;
-    return net === Net.MAIN ? bitcoin : testnet;
-  }
-
   private async calcFee(
     address: string,
     value: number,
     inputs: Input[],
     priority: Priority
   ) {
-    const network = this.getNetwork();
+    const { net, ECPair } = this.account;
+    const network = this.getNetwork(net);
     const noFeeOutputs = this.prepareOutputs(address, value, 0, this.account);
     const fees = (await getFeeEstimation(getParams(this.account)))
       ?.estimated_fees;
@@ -56,7 +53,7 @@ export class TransactionBTC {
     const size = new Psbt({ network })
       .addInputs(inputs)
       .addOutputs(noFeeOutputs)
-      .signAllInputs(this.account.ECPair)
+      .signAllInputs(ECPair)
       .finalizeAllInputs()
       .extractTransaction()
       .virtualSize();

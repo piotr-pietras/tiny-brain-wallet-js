@@ -1,8 +1,9 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { Blockchains, Net } from "../common/blockchain.types.js";
-import { networks, ECPair, ECPairInterface, payments } from "bitcoinjs-lib";
+import { ECPair, ECPairInterface, payments } from "bitcoinjs-lib";
 import { getListOfTx } from "../api/universal/getListOfUtxo.js";
 import { getParams } from "../api/params.js";
+import { Helpers } from "./Helpers.js";
 
 interface UTXO {
   txid: string;
@@ -11,7 +12,7 @@ interface UTXO {
   type: string;
 }
 
-export class AccountBTC {
+export class AccountBTC extends Helpers {
   blockchain = Blockchains.BTC;
   net: Net;
   balance: number = 0;
@@ -22,9 +23,9 @@ export class AccountBTC {
   utxos: UTXO[];
 
   constructor(phrase: string, net: Net) {
+    super();
     this.net = net;
-    const { bitcoin, testnet } = networks;
-    const network = net === Net.MAIN ? bitcoin : testnet;
+    const network = this.getNetwork(net);
     const privKey = this.phraseToPrivKey(phrase);
     this.ECPair = ECPair.fromPrivateKey(privKey, { network });
     const addresses = this.toAddress(this.ECPair.publicKey, net);
@@ -37,8 +38,7 @@ export class AccountBTC {
   }
 
   private toAddress(pubKey: Buffer, net: Net) {
-    const { bitcoin, testnet } = networks;
-    const network = net === Net.MAIN ? bitcoin : testnet;
+    const network = this.getNetwork(net);
     const p2pkh = payments.p2pkh({ network, pubkey: pubKey });
     const p2wpkh = payments.p2wpkh({ network, pubkey: pubKey });
 

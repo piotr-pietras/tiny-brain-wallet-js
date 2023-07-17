@@ -41,16 +41,14 @@ export const promptWalletMenu = (context: Context, before?: () => void) => {
           promptCreateTransaction(context);
           break;
         case Choices.BALANCE:
-          promptWalletMenu(context, async () => {
-            await account.initizalize();
-            printBalance(balance, decimals, blockchain);
-          });
+          await account.initizalize();
+          promptWalletMenu(context, () =>
+            printBalance(balance, decimals, blockchain)
+          );
           break;
         case Choices.UTXOS:
-          promptWalletMenu(context, async () => {
-            await account.initizalize();
-            boxedLog(utxos);
-          });
+          await account.initizalize();
+          promptWalletMenu(context, async () => boxedLog(utxos));
           break;
         case Choices.KEYS:
           promptWalletMenu(context, () => printKeys(keysHex));
