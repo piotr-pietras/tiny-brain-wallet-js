@@ -4,12 +4,12 @@ import { submitSignedTx } from "../api/universal/submitSignedTx.js";
 import { Net } from "../common/blockchain.types.js";
 import { AccountETH } from "./AccountETH.js";
 import { TransactionRequest } from "ethers";
+import { Priority, Transaction } from "./Transaction.types.js";
 
-type Priority = "fast" | "medium" | "slow";
-
-export class TransactionETH {
+export class TransactionETH implements Transaction {
   private account: AccountETH;
   private tx: TransactionRequest;
+
   fee: number;
   value: number;
   address: string;

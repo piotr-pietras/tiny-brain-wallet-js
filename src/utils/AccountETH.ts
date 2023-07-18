@@ -5,8 +5,9 @@ import { BaseWallet } from "ethers";
 import { getBalances } from "../api/universal/getBalances.js";
 import { getParams } from "../api/params.js";
 import { getTxCount } from "../api/native/eth/getTxCount.js";
+import { Account } from "./Account.types.js";
 
-export class AccountETH {
+export class AccountETH implements Account {
   blockchain = Blockchains.ETH;
   net: Net;
   balance: number = 0;
@@ -27,9 +28,10 @@ export class AccountETH {
     return Buffer.from(sha256(phrase));
   }
 
-  public async initialize() {
+  public async initizalize() {
     this.txCount = await this.initTxCount();
     this.balance = await this.initBalance();
+    return this;
   }
 
   private async initBalance() {

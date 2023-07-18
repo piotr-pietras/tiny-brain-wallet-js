@@ -3,27 +3,25 @@ import { getParams } from "../api/params.js";
 import { getFeeEstimation } from "../api/universal/getFeeEstimation.js";
 import { submitSignedTx } from "../api/universal/submitSignedTx.js";
 import { AccountBTC } from "./AccountBTC.js";
-import { Psbt } from "bitcoinjs-lib";
-import { HelpersBTC } from "./HelpersBTC.js";
-
-type Priority = "fast" | "medium" | "slow";
-
+import { Psbt, networks } from "bitcoinjs-lib";
+import { Priority, Transaction } from "./Transaction.types.js";
+import { Net } from "../common/blockchain.types.js";
 interface Input {
   hash: string;
   index: number;
   nonWitnessUtxo: Buffer;
 }
 
-export class TransactionBTC extends HelpersBTC {
+export class TransactionBTC implements Transaction {
   private account: AccountBTC;
   private psbt: Psbt;
+
   fee: number;
   value: number;
   address: string;
   priority: Priority;
 
   constructor(account: AccountBTC) {
-    super();
     this.account = account;
   }
 
@@ -111,5 +109,10 @@ export class TransactionBTC extends HelpersBTC {
 
     const tx = this.psbt.extractTransaction().toHex();
     await submitSignedTx(tx, getParams(this.account));
+  }
+
+  private getNetwork(net: Net) {
+    const { bitcoin, testnet } = networks;
+    return net === Net.MAIN ? bitcoin : testnet;
   }
 }

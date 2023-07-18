@@ -1,9 +1,9 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { Blockchains, Net } from "../common/blockchain.types.js";
-import { ECPair, ECPairInterface, payments } from "bitcoinjs-lib";
+import { ECPair, ECPairInterface, networks, payments } from "bitcoinjs-lib";
 import { getListOfTx } from "../api/universal/getListOfUtxo.js";
 import { getParams } from "../api/params.js";
-import { HelpersBTC } from "./HelpersBTC.js";
+import { Account } from "./Account.types.js";
 
 interface UTXO {
   txid: string;
@@ -12,7 +12,7 @@ interface UTXO {
   type: string;
 }
 
-export class AccountBTC extends HelpersBTC {
+export class AccountBTC implements Account {
   blockchain = Blockchains.BTC;
   net: Net;
   balance: number = 0;
@@ -23,7 +23,6 @@ export class AccountBTC extends HelpersBTC {
   utxos: UTXO[];
 
   constructor(phrase: string, net: Net) {
-    super();
     this.net = net;
     const network = this.getNetwork(net);
     const privKey = this.phraseToPrivKey(phrase);
@@ -48,6 +47,7 @@ export class AccountBTC extends HelpersBTC {
   public async initizalize() {
     this.utxos = await this.fetchUtxos();
     this.balance = this.initBalance(this.utxos);
+    return this;
   }
 
   private async fetchUtxos() {
@@ -75,6 +75,11 @@ export class AccountBTC extends HelpersBTC {
     let balance = 0;
     utxos.forEach(({ value }) => (balance += value));
     return balance;
+  }
+
+  private getNetwork(net: Net) {
+    const { bitcoin, testnet } = networks;
+    return net === Net.MAIN ? bitcoin : testnet;
   }
 
   get keysHex() {
