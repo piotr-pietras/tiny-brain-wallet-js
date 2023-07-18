@@ -1,5 +1,5 @@
 import https from "https";
-import { BLOCK_DEAMON_TOKEN, BLOCK_DEAMON_HOST } from "../api.const.js";
+import { BLOCK_DEAMON_TOKEN, BLOCK_DEAMON_HOST } from "../../api.const.js";
 
 export const getRawTx = (
   txid: string,
@@ -13,7 +13,7 @@ export const getRawTx = (
   });
   const options: https.RequestOptions = {
     ...BLOCK_DEAMON_HOST,
-    path: `/${params[0]}/${params[1]}/native`,
+    path: `/bitcoin/${params[1]}/native`,
     method: "POST",
     headers: {
       accept: "application/json",

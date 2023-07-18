@@ -5,6 +5,10 @@ const params: { [key in Blockchains]: { [key in Net]: [string, string] } } = {
     main: ["bitcoin", "mainnet"],
     test: ["bitcoin", "testnet"],
   },
+  eth: {
+    main: ["ethereum", "mainnet"],
+    test: ["ethereum", "goerli"],
+  },
 };
 
 interface GetParams {

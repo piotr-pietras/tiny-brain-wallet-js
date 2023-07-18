@@ -47,7 +47,7 @@ export class AccountBTC extends HelpersBTC {
 
   public async initizalize() {
     this.utxos = await this.fetchUtxos();
-    this.balance = this.calcBalance(this.utxos);
+    this.balance = this.initBalance(this.utxos);
   }
 
   private async fetchUtxos() {
@@ -71,7 +71,7 @@ export class AccountBTC extends HelpersBTC {
     return utxos;
   }
 
-  private calcBalance(utxos: UTXO[]) {
+  private initBalance(utxos: UTXO[]) {
     let balance = 0;
     utxos.forEach(({ value }) => (balance += value));
     return balance;

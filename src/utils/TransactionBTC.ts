@@ -1,4 +1,4 @@
-import { getRawTx } from "../api/native/getRawTx.js";
+import { getRawTx } from "../api/native/btc/getRawTx.js";
 import { getParams } from "../api/params.js";
 import { getFeeEstimation } from "../api/universal/getFeeEstimation.js";
 import { submitSignedTx } from "../api/universal/submitSignedTx.js";
@@ -53,8 +53,8 @@ export class TransactionBTC extends HelpersBTC {
     const network = this.getNetwork(net);
     const noFeeOutputs = this.prepareOutputs(address, value, 0, this.account);
     const fees = (await getFeeEstimation(getParams(this.account)))
-      ?.estimated_fees;
-    const feeRate = fees && fees[priority];
+      .estimated_fees;
+    const feeRate = fees && (fees[priority] as number);
     //TO DO find easier way to calc fee
     const size = new Psbt({ network })
       .addInputs(inputs)

@@ -1,18 +1,20 @@
 import https from "https";
 import { BLOCK_DEAMON_HOST, BLOCK_DEAMON_TOKEN } from "../api.const.js";
 
-type Fee = number | { max_total_fee: number };
-
 interface Response {
-  estimated_fees: { fast: Fee; medium: Fee; slow: Fee };
+  currency: {
+    symbol: string;
+  };
+  confirmed_balance: string;
 }
 
-export const getFeeEstimation = (
+export const getBalances = (
+  address: string,
   params: [string, string]
-): Promise<Response> => {
+): Promise<Response[]> => {
   const options: https.RequestOptions = {
     ...BLOCK_DEAMON_HOST,
-    path: `/universal/v1/${params[0]}/${params[1]}/tx/estimate_fee`,
+    path: `/universal/v1/${params[0]}/${params[1]}/account/${address}`,
     method: "GET",
     headers: {
       accept: "application/json",

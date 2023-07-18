@@ -5,4 +5,5 @@ export enum Net {
 
 export enum Blockchains {
   BTC = "btc",
+  ETH = "eth",
 }
