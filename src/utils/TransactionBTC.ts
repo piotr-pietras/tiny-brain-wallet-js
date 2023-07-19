@@ -16,6 +16,7 @@ export class TransactionBTC implements Transaction {
   private account: AccountBTC;
   private psbt: Psbt;
 
+  txid: string;
   fee: number;
   value: number;
   address: string;
@@ -109,7 +110,8 @@ export class TransactionBTC implements Transaction {
     this.psbt.finalizeAllInputs();
 
     const tx = this.psbt.extractTransaction().toHex();
-    await submitSignedTx(tx, getParams(this.account));
+    const res = await submitSignedTx(tx, getParams(this.account));
+    this.txid = res.id;
   }
 
   private getNetwork(net: Net) {

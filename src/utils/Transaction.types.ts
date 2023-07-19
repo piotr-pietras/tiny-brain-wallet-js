@@ -1,6 +1,7 @@
 export type Priority = "fast" | "medium" | "slow";
 
 export interface Transaction {
+  txid: string;
   fee: number;
   value: number;
   address: string;

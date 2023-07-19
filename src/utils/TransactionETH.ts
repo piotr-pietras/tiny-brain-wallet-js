@@ -10,6 +10,7 @@ export class TransactionETH implements Transaction {
   private account: AccountETH;
   private tx: TransactionRequest;
 
+  txid: string;
   fee: number;
   value: number;
   address: string;
@@ -53,6 +54,7 @@ export class TransactionETH implements Transaction {
 
   public async signAndSend() {
     const signed = await this.account.wallet.signTransaction(this.tx);
-    await submitSignedTx(signed, getParams(this.account));
+    const res = await submitSignedTx(signed, getParams(this.account));
+    this.txid = res.id;
   }
 }
