@@ -4,16 +4,20 @@ import { boxedLog, printWelcome } from "../printable.js";
 import { promptSendTransaction } from "./sendTransaction.prompt.js";
 import { promptWalletMenu } from "./walletMenu.prompt.js";
 import { TransactionBTC } from "../../utils/TransactionBTC.js";
+import { TransactionETH } from "../../utils/TransactionETH.js";
+import { Blockchains } from "../../common/blockchain.types.js";
+import { AccountBTC } from "../../utils/AccountBTC.js";
+import { AccountETH } from "../../utils/AccountETH.js";
 
 export const promptCreateTransaction = (context: Context) => {
   console.clear();
   printWelcome();
 
   const { account } = context.wallet;
-  const { decimals } = account;
+  const { decimals, blockchain } = account;
 
   inq
-    .prompt<{ address: string; value: string }>([
+    .prompt([
       {
         name: "address",
         message: "1)Paste your output address",
@@ -26,7 +30,15 @@ export const promptCreateTransaction = (context: Context) => {
       },
     ])
     .then(async ({ address, value }) => {
-      const transaction = new TransactionBTC(account);
+      let transaction: TransactionBTC | TransactionETH;
+      switch (blockchain) {
+        case Blockchains.BTC:
+          transaction = new TransactionBTC(account as AccountBTC);
+          break;
+        case Blockchains.ETH:
+          transaction = new TransactionETH(account as AccountETH);
+          break;
+      }
       try {
         const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
         await transaction.create(address, parseInt(v), "fast");

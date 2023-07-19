@@ -4,16 +4,17 @@ import { Blockchains, Net } from "../../common/blockchain.types.js";
 import { promptWalletMenu } from "./walletMenu.prompt.js";
 import { printWelcome } from "../printable.js";
 import { AccountBTC } from "../../utils/AccountBTC.js";
+import { AccountETH } from "../../utils/AccountETH.js";
 
 export const promptLoginToWallet = (context: Context) => {
   console.clear();
   printWelcome();
 
   inq
-    .prompt<{ blockchain: Blockchains; net: Net; phrase: string }>([
+    .prompt([
       {
         name: "blockchain",
-        message: "Login to a wallet: \n1)Choose blockchain wallet",
+        message: "1)Choose blockchain wallet",
         type: "list",
         choices: Object.values(Blockchains),
       },
@@ -30,15 +31,17 @@ export const promptLoginToWallet = (context: Context) => {
       },
     ])
     .then(async ({ blockchain, net, phrase }) => {
+      let account: AccountBTC | AccountETH;
       switch (blockchain) {
         case Blockchains.BTC:
-          const account = new AccountBTC(phrase, net);
-          await account.initizalize();
-          context.wallet = {
-            account,
-          };
+          account = new AccountBTC(phrase, net);
+          break;
+        case Blockchains.ETH:
+          account = new AccountETH(phrase, net);
           break;
       }
+      await account.initizalize();
+      context.wallet = { account };
       promptWalletMenu(context);
     });
 };

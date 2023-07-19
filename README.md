@@ -12,16 +12,9 @@ npm run build
 npm run start
 ```
 
-or
-
-```
-npm i
-make run
-```
-
 #### Current features
 
-- btc transaction (only p2pkh at this momement)
+- btc transaction (only p2pkh at this moment)
 - eth transaction is coming soon ...
 
 #### Vision
@@ -32,6 +25,7 @@ The app aims to be **easy to audit** and _(I hope someday)_ **free of any depend
 
 - @noble/hashes: 1.3.1
 - bitcoinjs-lib: 5.2.0
+- ethers: 6.6.4
 - inquirer: 9.2.7
 
 ```

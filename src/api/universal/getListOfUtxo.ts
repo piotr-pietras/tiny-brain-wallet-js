@@ -10,6 +10,7 @@ type ScriptType =
 interface Response {
   data: {
     status: string;
+    is_spent: boolean;
     value: number;
     mined?: {
       index: number;

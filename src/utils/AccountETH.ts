@@ -1,7 +1,6 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { Blockchains, Net } from "../common/blockchain.types.js";
-import { SigningKey } from "ethers";
-import { BaseWallet } from "ethers";
+import { SigningKey, BaseWallet } from "ethers";
 import { getBalances } from "../api/universal/getBalances.js";
 import { getParams } from "../api/params.js";
 import { getTxCount } from "../api/native/eth/getTxCount.js";
@@ -10,18 +9,20 @@ import { Account } from "./Account.types.js";
 export class AccountETH implements Account {
   blockchain = Blockchains.ETH;
   net: Net;
-  balance: number = 0;
+  balance: number;
   decimals = 18;
+  address: string;
 
-  ECPair: SigningKey;
+  ecPair: SigningKey;
   wallet: BaseWallet;
   txCount: number;
 
   constructor(phrase: string, net: Net) {
     this.net = net;
     const privKey = this.phraseToPrivKey(phrase);
-    this.ECPair = new SigningKey(privKey);
-    this.wallet = new BaseWallet(this.ECPair);
+    this.ecPair = new SigningKey(privKey);
+    this.wallet = new BaseWallet(this.ecPair);
+    this.address = this.wallet.address;
   }
 
   private phraseToPrivKey(phrase: string) {
@@ -35,7 +36,7 @@ export class AccountETH implements Account {
   }
 
   private async initBalance() {
-    const balances = await getBalances(this.wallet.address, getParams(this));
+    const balances = await getBalances(this.address, getParams(this));
     if (
       balances[0] &&
       balances[0].currency.symbol.toLowerCase() === this.blockchain
@@ -53,8 +54,8 @@ export class AccountETH implements Account {
 
   get keysHex() {
     return {
-      priv: this.ECPair.privateKey,
-      pub: this.ECPair.publicKey,
+      priv: this.ecPair.privateKey,
+      pub: this.ecPair.publicKey,
     };
   }
 }

@@ -14,7 +14,7 @@ export const promptSendTransaction = async (context: Context) => {
   printTransactionInfo(account, transaction, marketPrice);
 
   inq
-    .prompt<{ confirm: boolean }>([
+    .prompt([
       {
         name: "confirm",
         message: "Are you sure to sign this transaction?",

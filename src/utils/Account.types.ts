@@ -5,6 +5,8 @@ export interface Account {
   net: Net;
   balance: number;
   decimals: number;
+  address: string;
+
   keysHex: {
     priv: string;
     pub: string;

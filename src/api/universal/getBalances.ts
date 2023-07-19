@@ -6,6 +6,7 @@ interface Response {
     symbol: string;
   };
   confirmed_balance: string;
+  pending_balance: string;
 }
 
 export const getBalances = (

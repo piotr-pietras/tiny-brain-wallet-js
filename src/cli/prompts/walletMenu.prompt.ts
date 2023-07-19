@@ -8,14 +8,31 @@ import {
   printWelcome,
 } from "../printable.js";
 import { promptCreateTransaction } from "./createTransaction.prompt.js";
+import { Blockchains } from "../../common/blockchain.types.js";
+import { AccountBTC } from "../../utils/AccountBTC.js";
 
-enum Choices {
+enum ChoicesCommon {
   TRANSACTION = "Make transaction",
   BALANCE = "Check balance",
-  UTXOS = "List all utxos",
   KEYS = "Show your keys (unsafe)",
   LOGOUT = "Logout",
 }
+enum ChoicesBTC {
+  UTXOS = "List all utxos",
+}
+enum ChoicesETH {
+  ERC20 = "Call ERC20 method (coming soon...)",
+}
+type Choices = (ChoicesCommon | ChoicesBTC | ChoicesETH)[];
+
+const getChoices = (blockchain: Blockchains) => {
+  const choices: Choices = [...Object.values(ChoicesCommon)];
+  blockchain === Blockchains.BTC &&
+    choices.splice(2, 0, ...Object.values(ChoicesBTC));
+  blockchain === Blockchains.ETH &&
+    choices.splice(1, 0, ...Object.values(ChoicesETH));
+  return choices;
+};
 
 export const promptWalletMenu = (context: Context, before?: () => void) => {
   console.clear();
@@ -23,37 +40,38 @@ export const promptWalletMenu = (context: Context, before?: () => void) => {
   before && before();
 
   const { account } = context.wallet;
-  const { blockchain, net, decimals, balance, address, keysHex, utxos } =
-    account;
+  const { blockchain, net, address, keysHex } = account;
+  const utxos = blockchain === Blockchains.BTC && (account as AccountBTC).utxos;
 
   inq
-    .prompt<{ wallet: Choices }>([
+    .prompt([
       {
         name: "wallet",
         message: `${blockchain}-${net} => address: ${address}`,
         type: "list",
-        choices: Object.values(Choices),
+        choices: getChoices(blockchain),
       },
     ])
     .then(async ({ wallet }) => {
       switch (wallet) {
-        case Choices.TRANSACTION:
+        case ChoicesCommon.TRANSACTION:
           promptCreateTransaction(context);
           break;
-        case Choices.BALANCE:
-          await account.initizalize();
-          promptWalletMenu(context, () =>
-            printBalance(balance, decimals, blockchain)
-          );
+        case ChoicesETH.ERC20:
+          promptWalletMenu(context);
           break;
-        case Choices.UTXOS:
+        case ChoicesCommon.BALANCE:
+          await account.initizalize();
+          promptWalletMenu(context, () => printBalance(account));
+          break;
+        case ChoicesBTC.UTXOS:
           await account.initizalize();
           promptWalletMenu(context, async () => boxedLog(utxos));
           break;
-        case Choices.KEYS:
+        case ChoicesCommon.KEYS:
           promptWalletMenu(context, () => printKeys(keysHex));
           break;
-        case Choices.LOGOUT:
+        case ChoicesCommon.LOGOUT:
           promptMainMenu(context);
           break;
       }

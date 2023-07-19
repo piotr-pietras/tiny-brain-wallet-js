@@ -13,7 +13,7 @@ export const promptMainMenu = (context: Context) => {
   printWelcome();
 
   inq
-    .prompt<{ menu: Choices }>([
+    .prompt([
       {
         name: "menu",
         message: "What do you want to do?",
