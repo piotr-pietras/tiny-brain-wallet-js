@@ -1,9 +1,10 @@
 # tiny-brain-wallet-js
 
-Nothing fancy just a very tiny brain wallet built upon **Block Cypher API**.
-Type any sentences or phrases **only you know** to retrieve your keys and make some transactions. _(do not use on mainnet yet)_
+Nothing fancy just a very tiny brain wallet built upon **Block Daemon API**.
+Type any sentences or phrases **only you know** to retrieve your keys and make some transactions. \_(do not use on mainnet yet)
 
-https://i.imgur.com/04xleeI.mp4
+https://github.com/piotr-pietras/tiny-brain-wallet-js/assets/80528901/70293f5c-1b67-4bce-90a9-b9109dc31c5d_
+
 #### Start
 
 ```
@@ -15,7 +16,7 @@ npm run start
 #### Current features
 
 - btc transaction (only p2pkh at this moment)
-- eth transaction is coming soon ...
+- eth transaction (erc20 is coming...)
 
 #### Vision
 
