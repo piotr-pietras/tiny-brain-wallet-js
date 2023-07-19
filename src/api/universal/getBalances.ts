@@ -1,20 +1,22 @@
 import https from "https";
-import { BLOCK_DEAMON_TOKEN, BLOCK_DEAMON_HOST } from "../api.const.js";
+import { BLOCK_DEAMON_HOST, BLOCK_DEAMON_TOKEN } from "../api.const.js";
 
-export const getRawTx = (
-  txid: string,
+interface Response {
+  currency: {
+    symbol: string;
+  };
+  confirmed_balance: string;
+  pending_balance: string;
+}
+
+export const getBalances = (
+  address: string,
   params: [string, string]
-): Promise<{ result: string }> => {
-  const toSend = JSON.stringify({
-    jsonrpc: "2.0",
-    id: 1,
-    method: "getrawtransaction",
-    params: [txid],
-  });
+): Promise<Response[]> => {
   const options: https.RequestOptions = {
     ...BLOCK_DEAMON_HOST,
-    path: `/${params[0]}/${params[1]}/native`,
-    method: "POST",
+    path: `/universal/v1/${params[0]}/${params[1]}/account/${address}`,
+    method: "GET",
     headers: {
       accept: "application/json",
       "X-API-Key": BLOCK_DEAMON_TOKEN,
@@ -32,7 +34,6 @@ export const getRawTx = (
       });
     });
 
-    req.write(toSend);
     req.on("error", (err) => reject(err));
     req.end();
   });

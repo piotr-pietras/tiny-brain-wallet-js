@@ -14,7 +14,7 @@ export const promptSendTransaction = async (context: Context) => {
   printTransactionInfo(account, transaction, marketPrice);
 
   inq
-    .prompt<{ confirm: boolean }>([
+    .prompt([
       {
         name: "confirm",
         message: "Are you sure to sign this transaction?",
@@ -24,11 +24,13 @@ export const promptSendTransaction = async (context: Context) => {
     .then(async ({ confirm }) => {
       if (confirm) {
         try {
-          await context.wallet.transaction.signAndSend();
+          await transaction.signAndSend();
         } catch (err) {
           promptWalletMenu(context, () => boxedLog(err));
         }
-        promptWalletMenu(context, () => boxedLog("Transaction signed!"));
+        promptWalletMenu(context, () =>
+          boxedLog(`Transaction signed!\ntxid:\n   -> ${transaction.txid}`)
+        );
       } else {
         promptWalletMenu(context, () => boxedLog("Transaction canceled"));
       }

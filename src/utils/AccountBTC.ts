@@ -1,9 +1,10 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { Blockchains, Net } from "../common/blockchain.types.js";
-import { ECPair, ECPairInterface, payments } from "bitcoinjs-lib";
+import { ECPair, ECPairInterface, networks, payments } from "bitcoinjs-lib";
 import { getListOfTx } from "../api/universal/getListOfUtxo.js";
 import { getParams } from "../api/params.js";
-import { HelpersBTC } from "./HelpersBTC.js";
+import { Account } from "./Account.types.js";
+import { getBalances } from "../api/universal/getBalances.js";
 
 interface UTXO {
   txid: string;
@@ -12,23 +13,22 @@ interface UTXO {
   type: string;
 }
 
-export class AccountBTC extends HelpersBTC {
+export class AccountBTC implements Account {
   blockchain = Blockchains.BTC;
   net: Net;
-  balance: number = 0;
+  balance: number;
   decimals = 8;
-
-  ECPair: ECPairInterface;
   address: string;
+
+  ecPair: ECPairInterface;
   utxos: UTXO[];
 
   constructor(phrase: string, net: Net) {
-    super();
     this.net = net;
     const network = this.getNetwork(net);
     const privKey = this.phraseToPrivKey(phrase);
-    this.ECPair = ECPair.fromPrivateKey(privKey, { network });
-    const addresses = this.toAddress(this.ECPair.publicKey, net);
+    this.ecPair = ECPair.fromPrivateKey(privKey, { network });
+    const addresses = this.toAddress(this.ecPair.publicKey, net);
     //TO DO enabled p2wpkh transaction
     this.address = addresses["p2pkh"];
   }
@@ -47,7 +47,8 @@ export class AccountBTC extends HelpersBTC {
 
   public async initizalize() {
     this.utxos = await this.fetchUtxos();
-    this.balance = this.calcBalance(this.utxos);
+    this.balance = await this.initBalance();
+    return this;
   }
 
   private async fetchUtxos() {
@@ -63,24 +64,36 @@ export class AccountBTC extends HelpersBTC {
         isMore = false;
       }
 
-      list.data.forEach(({ value, mined: { index, tx_id, meta } }) => {
-        if (meta.script_type === "pubkeyhash")
-          utxos.push({ txid: tx_id, index, value, type: meta.script_type });
-      });
+      list.data.forEach(
+        ({ is_spent, value, mined: { index, tx_id, meta } }) => {
+          if (meta.script_type === "pubkeyhash" && !is_spent)
+            utxos.push({ txid: tx_id, index, value, type: meta.script_type });
+        }
+      );
     }
     return utxos;
   }
 
-  private calcBalance(utxos: UTXO[]) {
-    let balance = 0;
-    utxos.forEach(({ value }) => (balance += value));
-    return balance;
+  private async initBalance() {
+    const balances = await getBalances(this.address, getParams(this));
+    if (
+      balances[0] &&
+      balances[0].currency.symbol.toLowerCase() === this.blockchain
+    ) {
+      return parseInt(balances[0].confirmed_balance);
+    }
+    return 0;
+  }
+
+  private getNetwork(net: Net) {
+    const { bitcoin, testnet } = networks;
+    return net === Net.MAIN ? bitcoin : testnet;
   }
 
   get keysHex() {
     return {
-      priv: this.ECPair.privateKey.toString("hex"),
-      pub: this.ECPair.publicKey.toString("hex"),
+      priv: this.ecPair.privateKey.toString("hex"),
+      pub: this.ecPair.publicKey.toString("hex"),
     };
   }
 }

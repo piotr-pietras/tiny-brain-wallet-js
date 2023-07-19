@@ -1,29 +1,28 @@
-import { getRawTx } from "../api/native/getRawTx.js";
+import { getRawTx } from "../api/native/btc/getRawTx.js";
 import { getParams } from "../api/params.js";
 import { getFeeEstimation } from "../api/universal/getFeeEstimation.js";
 import { submitSignedTx } from "../api/universal/submitSignedTx.js";
 import { AccountBTC } from "./AccountBTC.js";
-import { Psbt } from "bitcoinjs-lib";
-import { HelpersBTC } from "./HelpersBTC.js";
-
-type Priority = "fast" | "medium" | "slow";
-
+import { Psbt, networks } from "bitcoinjs-lib";
+import { Priority, Transaction } from "./Transaction.types.js";
+import { Net } from "../common/blockchain.types.js";
 interface Input {
   hash: string;
   index: number;
   nonWitnessUtxo: Buffer;
 }
 
-export class TransactionBTC extends HelpersBTC {
+export class TransactionBTC implements Transaction {
   private account: AccountBTC;
   private psbt: Psbt;
+
+  txid: string;
   fee: number;
   value: number;
   address: string;
   priority: Priority;
 
   constructor(account: AccountBTC) {
-    super();
     this.account = account;
   }
 
@@ -49,12 +48,12 @@ export class TransactionBTC extends HelpersBTC {
     inputs: Input[],
     priority: Priority
   ) {
-    const { net, ECPair } = this.account;
+    const { net, ecPair: ECPair } = this.account;
     const network = this.getNetwork(net);
     const noFeeOutputs = this.prepareOutputs(address, value, 0, this.account);
     const fees = (await getFeeEstimation(getParams(this.account)))
-      ?.estimated_fees;
-    const feeRate = fees && fees[priority];
+      .estimated_fees;
+    const feeRate = fees && (fees[priority] as number);
     //TO DO find easier way to calc fee
     const size = new Psbt({ network })
       .addInputs(inputs)
@@ -88,7 +87,8 @@ export class TransactionBTC extends HelpersBTC {
     fee: number,
     account: AccountBTC
   ) {
-    if (account.balance - value - fee < 0)
+    const { balance } = account;
+    if (balance - value - fee < 0)
       throw `Not enough funds\n (Estimated fee: ${fee})`;
     return [
       {
@@ -97,19 +97,25 @@ export class TransactionBTC extends HelpersBTC {
       },
       {
         address: account.address,
-        value: account.balance - value - fee,
+        value: balance - value - fee,
       },
     ];
   }
 
   public async signAndSend() {
-    const { ECPair } = this.account;
+    const { ecPair: ECPair } = this.account;
     this.psbt.signAllInputs(ECPair);
     if (!this.psbt.validateSignaturesOfAllInputs())
       throw "Signatures not validated";
     this.psbt.finalizeAllInputs();
 
     const tx = this.psbt.extractTransaction().toHex();
-    await submitSignedTx(tx, getParams(this.account));
+    const res = await submitSignedTx(tx, getParams(this.account));
+    this.txid = res.id;
+  }
+
+  private getNetwork(net: Net) {
+    const { bitcoin, testnet } = networks;
+    return net === Net.MAIN ? bitcoin : testnet;
   }
 }

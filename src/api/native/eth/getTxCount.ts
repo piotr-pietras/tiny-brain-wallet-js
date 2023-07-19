@@ -1,21 +1,23 @@
 import https from "https";
-import { BLOCK_DEAMON_HOST, BLOCK_DEAMON_TOKEN } from "../api.const.js";
+import { BLOCK_DEAMON_TOKEN, BLOCK_DEAMON_HOST } from "../../api.const.js";
 
-type Fee = number | { max_total_fee: number };
-
-interface Response {
-  estimated_fees: { fast: Fee; medium: Fee; slow: Fee };
-}
-
-export const getFeeEstimation = (
+export const getTxCount = (
+  address: string,
   params: [string, string]
-): Promise<Response> => {
+): Promise<{ result: string }> => {
+  const toSend = JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "eth_getTransactionCount",
+    params: [address, "latest"],
+  });
   const options: https.RequestOptions = {
     ...BLOCK_DEAMON_HOST,
-    path: `/universal/v1/${params[0]}/${params[1]}/tx/estimate_fee`,
-    method: "GET",
+    path: `/ethereum/${params[1]}/native`,
+    method: "POST",
     headers: {
       accept: "application/json",
+      "Content-Type": "application/json",
       "X-API-Key": BLOCK_DEAMON_TOKEN,
     },
   };
@@ -31,6 +33,7 @@ export const getFeeEstimation = (
       });
     });
 
+    req.write(toSend);
     req.on("error", (err) => reject(err));
     req.end();
   });

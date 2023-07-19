@@ -1,6 +1,5 @@
-import { Blockchains } from "../common/blockchain.types.js";
-import { AccountBTC } from "../utils/AccountBTC.js";
-import { TransactionBTC } from "../utils/TransactionBTC.js";
+import { Account } from "../utils/Account.types.js";
+import { Transaction } from "../utils/Transaction.types.js";
 
 export const log = console.log;
 
@@ -25,24 +24,24 @@ export const printWelcome = () => {
 
 export const printKeys = (keys: { priv: string; pub: string }) => {
   log("\n-------------------------------------------");
-  log(`Private Key: \n->${keys.priv} `);
-  log(`Public Key (uncompressed): \n->${keys.pub}`);
+  log(`Private Key:`);
+  log(`   ->${keys.priv}`);
+  log(`Public Key (uncompressed):`);
+  log(`   ->${keys.pub}`);
   log("-------------------------------------------\n");
 };
 
-export const printBalance = (
-  balance: number,
-  decimals: number,
-  name: string
-) => {
+export const printBalance = (account: Account) => {
+  const { balance, decimals, blockchain } = account;
+  const priceConfirmed = balance / Math.pow(10, decimals);
   log("\n-------------------------------------------");
-  log(`Balance: ${balance} (${balance / Math.pow(10, decimals)} ${name})`);
+  log(`Balance: ${balance} (${priceConfirmed} ${blockchain})`);
   log("-------------------------------------------\n");
 };
 
 export const printTransactionInfo = (
-  account: AccountBTC,
-  transaction: TransactionBTC,
+  account: Account,
+  transaction: Transaction,
   marketPrice: number
 ) => {
   const { balance, blockchain, decimals } = account;
@@ -57,7 +56,7 @@ export const printTransactionInfo = (
     Math.pow(10, decimals)
   ).toFixed(2);
 
-  log("-------------------------------------------");
+  log("\n-------------------------------------------");
   log("Your tx was created successfully!");
   log("Check address, value and fee TWICE before sign!");
   log("-------------------------------------------");
@@ -69,5 +68,5 @@ export const printTransactionInfo = (
   log(`   -> ${fee} (${feeCoins} ${blockchain}) (${feeUsd} usd)`);
   log("Balance after transaction:");
   log(`   -> ${balance} (${balanceCoins} ${blockchain}) (${balanceUsd} usd)`);
-  log("-------------------------------------------");
+  log("-------------------------------------------\n");
 };
