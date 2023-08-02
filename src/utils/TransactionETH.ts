@@ -12,12 +12,15 @@ export class TransactionETH implements Transaction {
 
   txid: string;
   fee: number;
+  feeRate: number;
   value: number;
   address: string;
   priority: Priority;
 
-  constructor(account: AccountETH) {
+  constructor(account: AccountETH, feeRate?: number) {
     this.account = account;
+    //TO DO add fee rate ass gasprice
+    this.feeRate = feeRate;
   }
 
   public async create(address: string, value: number, priority: Priority) {

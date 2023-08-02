@@ -15,15 +15,17 @@ interface Input {
 export class TransactionBTC implements Transaction {
   private account: AccountBTC;
   private psbt: Psbt;
-
+  
   txid: string;
+  feeRate: number;
   fee: number;
   value: number;
   address: string;
   priority: Priority;
 
-  constructor(account: AccountBTC) {
+  constructor(account: AccountBTC, feeRate?: number) {
     this.account = account;
+    this.feeRate = feeRate;
   }
 
   public async create(address: string, value: number, priority: Priority) {
@@ -51,9 +53,18 @@ export class TransactionBTC implements Transaction {
     const { net, ecPair: ECPair } = this.account;
     const network = this.getNetwork(net);
     const noFeeOutputs = this.prepareOutputs(address, value, 0, this.account);
-    const fees = (await getFeeEstimation(getParams(this.account)))
-      .estimated_fees;
-    const feeRate = fees && (fees[priority] as number);
+
+    let feeRate;
+    if (this.feeRate) {
+      feeRate = this.feeRate;
+    } else {
+      const fees = (await getFeeEstimation(getParams(this.account)))
+        .estimated_fees;
+      feeRate = fees && (fees[priority] as number);
+    }
+
+    if (!feeRate || feeRate < 1) throw "Fee rate is invalid";
+
     //TO DO find easier way to calc fee
     const size = new Psbt({ network })
       .addInputs(inputs)

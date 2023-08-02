@@ -5,6 +5,7 @@ import { promptWalletMenu } from "./walletMenu.prompt.js";
 import { printWelcome } from "../printable.js";
 import { AccountBTC } from "../../utils/AccountBTC.js";
 import { AccountETH } from "../../utils/AccountETH.js";
+import { phraseMixer } from "../../common/phraseMixer.js";
 
 export const promptLoginToWallet = (context: Context) => {
   console.clear();
@@ -26,18 +27,24 @@ export const promptLoginToWallet = (context: Context) => {
       },
       {
         name: "phrase",
-        message: "3)Type phrases",
+        message: "3)Type your phrases\n->",
+        type: "input",
+      },
+      {
+        name: "mix",
+        message: "4)Type your mix number (bigger than 10^4)\n->",
         type: "input",
       },
     ])
-    .then(async ({ blockchain, net, phrase }) => {
+    .then(async ({ blockchain, net, phrase, mix }) => {
       let account: AccountBTC | AccountETH;
+      const mixedPhrase = phraseMixer(phrase, mix);
       switch (blockchain) {
         case Blockchains.BTC:
-          account = new AccountBTC(phrase, net);
+          account = new AccountBTC(mixedPhrase, net);
           break;
         case Blockchains.ETH:
-          account = new AccountETH(phrase, net);
+          account = new AccountETH(mixedPhrase, net);
           break;
       }
       await account.initizalize();
