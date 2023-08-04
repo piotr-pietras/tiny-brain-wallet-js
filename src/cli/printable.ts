@@ -47,11 +47,10 @@ export const printTransactionInfo = (
   marketPrice: number
 ) => {
   const { balance, blockchain, decimals } = account;
-  const { address, fee, value } = transaction;
+  const { address, fee, value, feeRateUnit } = transaction as any;
   const feeRate = transaction.feeRate;
   const amountCoins = value / Math.pow(10, decimals);
   const amountUsd = ((value * marketPrice) / Math.pow(10, decimals)).toFixed(2);
-  const feeCoins = fee / Math.pow(10, decimals);
   const feeUsd = ((fee * marketPrice) / Math.pow(10, decimals)).toFixed(2);
   const balanceCoins = (balance - value - fee) / Math.pow(10, decimals);
   const balanceUsd = (
@@ -68,9 +67,9 @@ export const printTransactionInfo = (
   log("Amount:");
   log(`   -> ${value} (${amountCoins} ${blockchain}) (${amountUsd} usd)`);
   log("Fee:");
-  log(`   -> ${fee} (${feeCoins} ${blockchain}) (${feeUsd} usd)`);
-  feeRate && log("Fee rate:");
-  feeRate && log(`   -> ${feeRate} (stas/vB)`);
+  log(`   -> ${fee} (${feeUsd} usd)`);
+  log("Fee rate:");
+  log(`   -> ${feeRate} ${feeRateUnit}`);
   log("Balance after transaction:");
   log(`   -> ${balance} (${balanceCoins} ${blockchain}) (${balanceUsd} usd)`);
   log("-------------------------------------------\n");

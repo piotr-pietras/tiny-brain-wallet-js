@@ -16,48 +16,52 @@ export const promptCreateTransaction = (context: Context) => {
   const { account } = context.wallet;
   const { decimals, blockchain } = account;
 
-  const choices = [
-    {
-      name: "address",
-      message: "1)Paste your output address\n->",
-      type: "input",
-    },
-    {
-      name: "value",
-      message: `2)How much do you want to send (x * 10^${decimals})\n->`,
-      type: "input",
-    },
-  ];
+  let feeRateUnit;
 
-  blockchain === Blockchains.BTC &&
-    choices.push({
-      name: "feeRate",
-      message: "3)What fee you want to pay (sats/vB) (empty == default)\n->",
-      type: "input",
+  switch (blockchain) {
+    case Blockchains.BTC:
+      feeRateUnit = TransactionBTC.feeRateUnit;
+      break;
+    case Blockchains.ETH:
+      feeRateUnit = TransactionETH.feeRateUnit;
+      break;
+  }
+
+  inq
+    .prompt([
+      {
+        name: "address",
+        message: "1)Paste your output address\n->",
+        type: "input",
+      },
+      {
+        name: "value",
+        message: `2)How much do you want to send (x * 10^${decimals})\n->`,
+        type: "input",
+      },
+      {
+        name: "feeRate",
+        message: `3)What fee you want to pay (${feeRateUnit})\n->`,
+        type: "input",
+      },
+    ])
+    .then(async ({ address, value, feeRate }) => {
+      let transaction: TransactionBTC | TransactionETH;
+      switch (blockchain) {
+        case Blockchains.BTC:
+          transaction = new TransactionBTC(account as AccountBTC);
+          break;
+        case Blockchains.ETH:
+          transaction = new TransactionETH(account as AccountETH);
+          break;
+      }
+      try {
+        const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
+        await transaction.create(address, parseInt(v), parseInt(feeRate));
+        context.wallet.transaction = transaction;
+        promptSendTransaction(context);
+      } catch (err) {
+        promptWalletMenu(context, () => boxedLog(err));
+      }
     });
-
-  inq.prompt(choices).then(async ({ address, value, feeRate }) => {
-    let transaction: TransactionBTC | TransactionETH;
-    switch (blockchain) {
-      case Blockchains.BTC:
-        transaction = new TransactionBTC(
-          account as AccountBTC,
-          feeRate && parseInt(feeRate)
-        );
-        break;
-      case Blockchains.ETH:
-        transaction = new TransactionETH(account as AccountETH);
-        break;
-    }
-    try {
-      const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
-      await transaction.create(address, parseInt(v), "fast");
-      context.wallet.transaction = transaction;
-      promptSendTransaction(context);
-    } catch (err) {
-      promptWalletMenu(context, () => boxedLog(err));
-    }
-  });
 };
-
-// mtM3NuQr71FSkn33xfdcSuN8PBTzYbQeSj;
