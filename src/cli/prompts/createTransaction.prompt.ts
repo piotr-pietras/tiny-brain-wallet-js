@@ -16,20 +16,36 @@ export const promptCreateTransaction = (context: Context) => {
   const { account } = context.wallet;
   const { decimals, blockchain } = account;
 
+  let feeRateUnit;
+
+  switch (blockchain) {
+    case Blockchains.BTC:
+      feeRateUnit = TransactionBTC.feeRateUnit;
+      break;
+    case Blockchains.ETH:
+      feeRateUnit = TransactionETH.feeRateUnit;
+      break;
+  }
+
   inq
     .prompt([
       {
         name: "address",
-        message: "1)Paste your output address",
+        message: "1)Paste your output address\n->",
         type: "input",
       },
       {
         name: "value",
-        message: "2)How much do you want to send",
+        message: `2)How much do you want to send (x * 10^${decimals})\n->`,
+        type: "input",
+      },
+      {
+        name: "feeRate",
+        message: `3)What fee you want to pay (${feeRateUnit})\n->`,
         type: "input",
       },
     ])
-    .then(async ({ address, value }) => {
+    .then(async ({ address, value, feeRate }) => {
       let transaction: TransactionBTC | TransactionETH;
       switch (blockchain) {
         case Blockchains.BTC:
@@ -41,7 +57,7 @@ export const promptCreateTransaction = (context: Context) => {
       }
       try {
         const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
-        await transaction.create(address, parseInt(v), "fast");
+        await transaction.create(address, parseInt(v), parseInt(feeRate));
         context.wallet.transaction = transaction;
         promptSendTransaction(context);
       } catch (err) {
