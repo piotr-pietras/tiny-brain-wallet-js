@@ -34,7 +34,10 @@ const getChoices = (blockchain: Blockchains) => {
   return choices;
 };
 
-export const promptWalletMenu = (context: Context, before?: () => void) => {
+export const promptWalletMenu = async (
+  context: Context,
+  before?: () => void
+) => {
   console.clear();
   printWelcome();
   before && before();
@@ -66,7 +69,7 @@ export const promptWalletMenu = (context: Context, before?: () => void) => {
           break;
         case ChoicesBTC.UTXOS:
           await account.initizalize();
-          promptWalletMenu(context, async () => boxedLog(utxos));
+          promptWalletMenu(context, () => boxedLog(utxos));
           break;
         case ChoicesCommon.KEYS:
           promptWalletMenu(context, () => printKeys(keysHex));

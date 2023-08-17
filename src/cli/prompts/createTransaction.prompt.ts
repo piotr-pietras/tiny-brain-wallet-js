@@ -20,10 +20,10 @@ export const promptCreateTransaction = (context: Context) => {
 
   switch (blockchain) {
     case Blockchains.BTC:
-      feeRateUnit = TransactionBTC.feeRateUnit;
+      feeRateUnit = new TransactionBTC({} as any).feeRateUnit;
       break;
     case Blockchains.ETH:
-      feeRateUnit = TransactionETH.feeRateUnit;
+      feeRateUnit = new TransactionETH({} as any).feeRateUnit;
       break;
   }
 
@@ -57,7 +57,7 @@ export const promptCreateTransaction = (context: Context) => {
       }
       try {
         const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
-        await transaction.create(address, parseInt(v), parseInt(feeRate));
+        await transaction.create(address, v, parseInt(feeRate));
         context.wallet.transaction = transaction;
         promptSendTransaction(context);
       } catch (err) {

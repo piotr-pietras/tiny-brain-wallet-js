@@ -1,7 +1,5 @@
-import { Blockchains } from "../common/blockchain.types.js";
 import { Account } from "../utils/Account.types.js";
 import { Transaction } from "../utils/Transaction.types.js";
-import { TransactionBTC } from "../utils/TransactionBTC.js";
 
 export const log = console.log;
 
@@ -47,16 +45,17 @@ export const printTransactionInfo = (
   marketPrice: number
 ) => {
   const { balance, blockchain, decimals } = account;
-  const { address, fee, value, feeRateUnit } = transaction as any;
+  const { address, fee, value, feeRateUnit } = transaction;
+  const valueInt = parseInt(value);
   const feeRate = transaction.feeRate;
-  const amountCoins = value / Math.pow(10, decimals);
-  const amountUsd = ((value * marketPrice) / Math.pow(10, decimals)).toFixed(2);
+  const amountCoins = valueInt / Math.pow(10, decimals);
+  const amountUsd = ((valueInt * marketPrice) / Math.pow(10, decimals)).toFixed(
+    2
+  );
   const feeUsd = ((fee * marketPrice) / Math.pow(10, decimals)).toFixed(2);
-  const balanceCoins = (balance - value - fee) / Math.pow(10, decimals);
-  const balanceUsd = (
-    ((balance - value - fee) * marketPrice) /
-    Math.pow(10, decimals)
-  ).toFixed(2);
+  const diff = balance - valueInt - fee;
+  const balanceCoins = diff / Math.pow(10, decimals);
+  const balanceUsd = ((diff * marketPrice) / Math.pow(10, decimals)).toFixed(2);
 
   log("\n-------------------------------------------");
   log("Your tx was created successfully!");

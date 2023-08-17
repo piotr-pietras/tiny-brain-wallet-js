@@ -4,16 +4,18 @@ import { Net } from "../common/blockchain.types.js";
 import { AccountETH } from "./AccountETH.js";
 import { TransactionRequest } from "ethers";
 import { Priority, Transaction } from "./Transaction.types.js";
+import { getTxCount } from "../api/native/eth/getTxCount.js";
 
 export class TransactionETH implements Transaction {
   private account: AccountETH;
   private tx: TransactionRequest;
 
   txid: string;
+  txCount: number;
   fee: number;
   feeRate: number;
-  static feeRateUnit = "Gwei";
-  value: number;
+  feeRateUnit = "Gwei";
+  value: string;
   address: string;
   priority: Priority;
 
@@ -21,7 +23,7 @@ export class TransactionETH implements Transaction {
     this.account = account;
   }
 
-  public async create(address: string, value: number, feeRate: number) {
+  public async create(address: string, value: string, feeRate: number) {
     this.value = value;
     this.address = address;
     this.feeRate = feeRate;
@@ -31,13 +33,17 @@ export class TransactionETH implements Transaction {
     const gasLimit = 21000;
     this.fee = feeRate * gasLimit;
 
+    const params = getParams(this.account);
+    const countResponse = await getTxCount(this.account.wallet.address, params);
+    this.txCount = parseInt(countResponse.result);
+
     this.tx = {
       from: this.account.wallet.address,
       to: address,
       value,
       gasLimit,
       gasPrice,
-      nonce: this.account.txCount,
+      nonce: this.txCount,
       chainId: net === Net.MAIN ? 1 : 5,
     };
 

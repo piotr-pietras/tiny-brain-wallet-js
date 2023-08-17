@@ -17,16 +17,16 @@ export class TransactionBTC implements Transaction {
 
   txid: string;
   feeRate: number;
-  static feeRateUnit = "sats/vB";
+  feeRateUnit = "sats/vB";
   fee: number;
-  value: number;
+  value: string;
   address: string;
 
   constructor(account: AccountBTC) {
     this.account = account;
   }
 
-  public async create(address: string, value: number, feeRate: number) {
+  public async create(address: string, value: string, feeRate: number) {
     this.value = value;
     this.address = address;
     this.feeRate = feeRate;
@@ -36,8 +36,13 @@ export class TransactionBTC implements Transaction {
     const inputs = await this.prepareInputs(utxos);
     if (!utxos.length) throw "No utxos";
 
-    this.fee = await this.calcFee(address, value, inputs, feeRate);
-    const outputs = this.prepareOutputs(address, value, this.fee, this.account);
+    this.fee = await this.calcFee(address, parseInt(value), inputs, feeRate);
+    const outputs = this.prepareOutputs(
+      address,
+      parseInt(value),
+      this.fee,
+      this.account
+    );
     this.psbt = new Psbt({ network }).addInputs(inputs).addOutputs(outputs);
     return this;
   }
