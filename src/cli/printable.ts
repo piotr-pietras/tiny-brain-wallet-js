@@ -1,5 +1,6 @@
 import { Account } from "../utils/Account.types.js";
 import { Transaction } from "../utils/Transaction.types.js";
+import { TransferERC20 } from "../utils/TransferERC20.js";
 
 export const log = console.log;
 
@@ -45,9 +46,8 @@ export const printTransactionInfo = (
   marketPrice: number
 ) => {
   const { balance, blockchain, decimals } = account;
-  const { address, fee, value, feeRateUnit } = transaction;
+  const { address, fee, value, feeRateUnit, feeRate } = transaction;
   const valueInt = parseInt(value);
-  const feeRate = transaction.feeRate;
   const amountCoins = valueInt / Math.pow(10, decimals);
   const amountUsd = ((valueInt * marketPrice) / Math.pow(10, decimals)).toFixed(
     2
@@ -71,5 +71,32 @@ export const printTransactionInfo = (
   log(`   -> ${feeRate} ${feeRateUnit}`);
   log("Balance after transaction:");
   log(`   -> ${balance} (${balanceCoins} ${blockchain}) (${balanceUsd} usd)`);
+  log("-------------------------------------------\n");
+};
+
+export const printMethodInfo = (
+  account: Account,
+  method: TransferERC20,
+  ethMarketPrice: number
+) => {
+  const { decimals } = account;
+  const { address, fee, value, feeRateUnit, feeRate, contractData } = method;
+  const valueInt = parseInt(value);
+  const amountTokens = valueInt / Math.pow(10, contractData.decimals);
+
+  const feeUsd = ((fee * ethMarketPrice) / Math.pow(10, decimals)).toFixed(2);
+
+  log("\n-------------------------------------------");
+  log("Your tx was created successfully!");
+  log("Check address, value and fee TWICE before sign!");
+  log("-------------------------------------------");
+  log("Destination:");
+  log(`   -> ${address}`);
+  log("Amount:");
+  log(`   -> ${value} (${amountTokens} ${contractData.name})`);
+  log("Fee:");
+  log(`   -> ${fee} (${feeUsd} usd)`);
+  log("Fee rate:");
+  log(`   -> ${feeRate} ${feeRateUnit}`);
   log("-------------------------------------------\n");
 };

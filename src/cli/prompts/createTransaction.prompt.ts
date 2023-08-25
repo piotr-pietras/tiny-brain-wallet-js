@@ -56,7 +56,7 @@ export const promptCreateTransaction = (context: Context) => {
           break;
       }
       try {
-        const v = (parseFloat(value) * Math.pow(10, decimals)).toFixed(0);
+        const v = (parseInt(value) * Math.pow(10, decimals)).toFixed(0);
         await transaction.create(address, v, parseInt(feeRate));
         context.wallet.transaction = transaction;
         promptSendTransaction(context);

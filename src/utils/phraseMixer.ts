@@ -35,12 +35,19 @@ const mix = (phrase: string, iteration: number) => {
   return mixed.join("");
 };
 
-export const phraseMixer = (phrase: string, iteration: number) => {
+export const phraseMixer = (
+  phrase: string,
+  iteration: number,
+  progressCallback?: (i: number, iteration: number) => void
+) => {
   let i = 0;
   let mixed = phrase;
   while (i < iteration) {
     mixed = mix(mixed, i);
     i++;
+    if (!(i % 1000)) {
+      progressCallback && progressCallback(i, iteration);
+    }
   }
   return mixed;
 };

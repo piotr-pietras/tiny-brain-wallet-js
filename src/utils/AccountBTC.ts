@@ -25,24 +25,17 @@ export class AccountBTC implements Account {
 
   constructor(phrase: string, net: Net) {
     this.net = net;
-    const network = this.getNetwork(net);
+    const network = Net.MAIN ? networks.bitcoin : networks.testnet;
     const privKey = this.phraseToPrivKey(phrase);
     this.ecPair = ECPair.fromPrivateKey(privKey, { network });
-    const addresses = this.toAddress(this.ecPair.publicKey, net);
-    //TO DO enabled p2wpkh transaction
-    this.address = addresses["p2pkh"];
+    this.address = payments.p2pkh({
+      network,
+      pubkey: this.ecPair.publicKey,
+    }).address;
   }
 
   private phraseToPrivKey(phrase: string) {
     return Buffer.from(sha256(phrase));
-  }
-
-  private toAddress(pubKey: Buffer, net: Net) {
-    const network = this.getNetwork(net);
-    const p2pkh = payments.p2pkh({ network, pubkey: pubKey });
-    const p2wpkh = payments.p2wpkh({ network, pubkey: pubKey });
-
-    return { p2pkh: p2pkh.address, p2wpkh: p2wpkh.address };
   }
 
   public async initizalize() {
@@ -83,11 +76,6 @@ export class AccountBTC implements Account {
       return parseInt(balances[0].confirmed_balance);
     }
     return 0;
-  }
-
-  private getNetwork(net: Net) {
-    const { bitcoin, testnet } = networks;
-    return net === Net.MAIN ? bitcoin : testnet;
   }
 
   get keysHex() {

@@ -2,10 +2,10 @@ import inq from "inquirer";
 import { Context } from "../context.js";
 import { Blockchains, Net } from "../../common/blockchain.types.js";
 import { promptWalletMenu } from "./walletMenu.prompt.js";
-import { printWelcome } from "../printable.js";
+import { boxedLog, printWelcome } from "../printable.js";
 import { AccountBTC } from "../../utils/AccountBTC.js";
 import { AccountETH } from "../../utils/AccountETH.js";
-import { phraseMixer } from "../../common/phraseMixer.js";
+import { phraseMixer } from "../../utils/phraseMixer.js";
 
 export const promptLoginToWallet = (context: Context) => {
   console.clear();
@@ -38,7 +38,11 @@ export const promptLoginToWallet = (context: Context) => {
     ])
     .then(async ({ blockchain, net, phrase, mix }) => {
       let account: AccountBTC | AccountETH;
-      const mixedPhrase = phraseMixer(phrase, mix);
+      const mixedPhrase = phraseMixer(phrase, mix, (i, iteration) => {
+        console.clear();
+        printWelcome();
+        boxedLog(`${Math.ceil(i / iteration * 100)}%`);
+      });
       switch (blockchain) {
         case Blockchains.BTC:
           account = new AccountBTC(mixedPhrase, net);

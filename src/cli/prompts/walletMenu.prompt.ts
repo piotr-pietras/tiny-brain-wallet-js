@@ -10,6 +10,7 @@ import {
 import { promptCreateTransaction } from "./createTransaction.prompt.js";
 import { Blockchains } from "../../common/blockchain.types.js";
 import { AccountBTC } from "../../utils/AccountBTC.js";
+import { promptCreateMethod } from "./createMethod.prompt.js";
 
 enum ChoicesCommon {
   TRANSACTION = "Make transaction",
@@ -21,7 +22,7 @@ enum ChoicesBTC {
   UTXOS = "List all utxos",
 }
 enum ChoicesETH {
-  ERC20 = "Call ERC20 method (coming soon...)",
+  ERC20 = "Call ERC20 method",
 }
 type Choices = (ChoicesCommon | ChoicesBTC | ChoicesETH)[];
 
@@ -61,7 +62,8 @@ export const promptWalletMenu = async (
           promptCreateTransaction(context);
           break;
         case ChoicesETH.ERC20:
-          promptWalletMenu(context);
+          await account.initizalize();
+          promptCreateMethod(context);
           break;
         case ChoicesCommon.BALANCE:
           await account.initizalize();
