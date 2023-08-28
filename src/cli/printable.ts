@@ -34,7 +34,7 @@ export const printKeys = (keys: { priv: string; pub: string }) => {
 
 export const printBalance = (account: Account) => {
   const { balance, decimals, blockchain } = account;
-  const priceConfirmed = balance / Math.pow(10, decimals);
+  const priceConfirmed = balance / BigInt(Math.pow(10, decimals));
   log("\n-------------------------------------------");
   log(`Balance: ${balance} (${priceConfirmed} ${blockchain})`);
   log("-------------------------------------------\n");
@@ -47,15 +47,21 @@ export const printTransactionInfo = (
 ) => {
   const { balance, blockchain, decimals } = account;
   const { address, fee, value, feeRateUnit, feeRate } = transaction;
-  const valueInt = parseInt(value);
-  const amountCoins = valueInt / Math.pow(10, decimals);
-  const amountUsd = ((valueInt * marketPrice) / Math.pow(10, decimals)).toFixed(
-    2
-  );
-  const feeUsd = ((fee * marketPrice) / Math.pow(10, decimals)).toFixed(2);
-  const diff = balance - valueInt - fee;
-  const balanceCoins = diff / Math.pow(10, decimals);
-  const balanceUsd = ((diff * marketPrice) / Math.pow(10, decimals)).toFixed(2);
+  const amountCoins = value / BigInt(Math.pow(10, decimals));
+  const amountUsd = (
+    (parseFloat(value.toString()) * marketPrice) /
+    Math.pow(10, decimals)
+  ).toFixed(2);
+  const feeUsd = (
+    (parseFloat(fee.toString()) * marketPrice) /
+    Math.pow(10, decimals)
+  ).toFixed(2);
+  const diff = balance - value - fee;
+  const balanceCoins = diff / BigInt(Math.pow(10, decimals));
+  const balanceUsd = (
+    (parseFloat(diff.toString()) * marketPrice) /
+    Math.pow(10, decimals)
+  ).toFixed(2);
 
   log("\n-------------------------------------------");
   log("Your tx was created successfully!");
@@ -84,7 +90,10 @@ export const printMethodInfo = (
   const valueInt = parseInt(value);
   const amountTokens = valueInt / Math.pow(10, contractData.decimals);
 
-  const feeUsd = ((fee * ethMarketPrice) / Math.pow(10, decimals)).toFixed(2);
+  const feeUsd = (
+    (parseFloat(fee.toString()) * ethMarketPrice) /
+    Math.pow(10, decimals)
+  ).toFixed(2);
 
   log("\n-------------------------------------------");
   log("Your tx was created successfully!");

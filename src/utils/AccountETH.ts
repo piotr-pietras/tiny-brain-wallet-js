@@ -8,7 +8,7 @@ import { Account } from "./Account.types.js";
 export class AccountETH implements Account {
   blockchain = Blockchains.ETH;
   net: Net;
-  balance: number;
+  balance: bigint;
   decimals = 18;
   address: string;
 
@@ -38,9 +38,9 @@ export class AccountETH implements Account {
       balances[0] &&
       balances[0].currency.symbol.toLowerCase() === this.blockchain
     ) {
-      return parseInt(balances[0].confirmed_balance);
+      return BigInt(balances[0].confirmed_balance);
     }
-    return 0;
+    return BigInt(0);
   }
 
   get keysHex() {

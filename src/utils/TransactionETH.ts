@@ -12,10 +12,10 @@ export class TransactionETH implements Transaction {
 
   txid: string;
   txCount: number;
-  fee: number;
+  fee: bigint; //wei
   feeRate: number;
   feeRateUnit = "Gwei";
-  value: string;
+  value: bigint;
   address: string;
   priority: Priority;
 
@@ -24,14 +24,14 @@ export class TransactionETH implements Transaction {
   }
 
   public async create(address: string, value: string, feeRate: number) {
-    this.value = value;
+    this.value = BigInt(value);
     this.address = address;
     this.feeRate = feeRate;
 
     const { net } = this.account;
-    const gasPrice = feeRate * Math.pow(10, 9);
-    const gasLimit = 21000;
-    this.fee = feeRate * gasLimit;
+    const gasPrice = BigInt(feeRate * Math.pow(10, 9));
+    const gasLimit = BigInt(21000);
+    this.fee = gasPrice * gasLimit;
 
     const params = getParams(this.account);
     const countResponse = await getTxCount(this.account.wallet.address, params);

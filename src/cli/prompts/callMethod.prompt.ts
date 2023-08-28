@@ -11,7 +11,6 @@ export const promptCallMethod = async (context: Context) => {
 
   const { account, method } = context.wallet;
   const ethMarketPrice = (await getMarketPrice(Blockchains.ETH)).price;
-  console.log(ethMarketPrice);
 
   printMethodInfo(account, method, ethMarketPrice);
 

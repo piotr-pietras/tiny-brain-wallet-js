@@ -5,7 +5,6 @@ import { AccountETH } from "./AccountETH.js";
 import { TransactionRequest, Contract, ethers } from "ethers";
 import { Priority } from "./Transaction.types.js";
 import { getTxCount } from "../api/native/eth/getTxCount.js";
-import { erc20Test } from "../common/erc20.test.js";
 import { ContractData } from "../common/erc20.types.js";
 import { estimateTxGas } from "../api/native/eth/estimateTxGas.js";
 
@@ -16,7 +15,7 @@ export class TransferERC20 {
 
   txid: string;
   txCount: number;
-  fee: number;
+  fee: bigint;
   feeRate: number;
   feeRateUnit = "Gwei";
   value: string;
@@ -43,7 +42,7 @@ export class TransferERC20 {
     ]);
 
     const { net, wallet } = this.account;
-    const gasPrice = feeRate * Math.pow(10, 9);
+    const gasPrice = BigInt(feeRate * Math.pow(10, 9));
     const gasLimit = await this.estimateGasLimit(methodSignature);
 
     this.fee = gasPrice * gasLimit;
@@ -81,6 +80,6 @@ export class TransferERC20 {
       getParams(this.account)
     );
 
-    return Number(result) * (1 + EXTRA_FEE / 100);
+    return (BigInt(result) * BigInt(100 + EXTRA_FEE)) / BigInt(100);
   }
 }
