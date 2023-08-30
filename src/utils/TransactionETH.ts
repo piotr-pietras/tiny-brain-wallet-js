@@ -22,13 +22,13 @@ export class TransactionETH implements Transaction {
     this.account = account;
   }
 
-  public async create(address: string, value: string, feeRate: number) {
-    this.value = BigInt(value);
+  public async create(address: string, value: bigint, feeRate: number) {
+    this.value = value;
     this.address = address;
     this.feeRate = feeRate;
 
     const { net } = this.account;
-    const gasPrice = BigInt(feeRate * Math.pow(10, 9));
+    const gasPrice = BigInt(feeRate) * BigInt(Math.pow(10, 9));
     const gasLimit = BigInt(21000);
     this.fee = gasPrice * gasLimit;
 

@@ -6,6 +6,6 @@ export interface Transaction {
   value: bigint;
   address: string;
 
-  create: (address: string, value: string, feeRate: number) => Promise<this>;
+  create: (address: string, value: bigint, feeRate: number) => Promise<this>;
   signAndSend: () => Promise<void>;
 }

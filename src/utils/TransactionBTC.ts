@@ -26,8 +26,8 @@ export class TransactionBTC implements Transaction {
     this.account = account;
   }
 
-  public async create(address: string, value: string, feeRate: number) {
-    this.value = BigInt(value);
+  public async create(address: string, value: bigint, feeRate: number) {
+    this.value = value;
     this.address = address;
     this.feeRate = feeRate;
 
