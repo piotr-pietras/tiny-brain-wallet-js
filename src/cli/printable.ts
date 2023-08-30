@@ -5,10 +5,11 @@ import { TransferERC20 } from "../utils/TransferERC20.js";
 
 export const log = console.log;
 
-export const boxedLog = (line: any) => {
-  log("\n-------------------------------------------");
+export const boxedLog = (line: any, startChar?: string) => {
+  const s = startChar ? startChar : "-";
+  log(`\n${s}-------------------------------------------`);
   log(line);
-  log("-------------------------------------------\n");
+  log(`${s}-------------------------------------------\n`);
 };
 
 export const printWelcome = () => {
@@ -48,7 +49,7 @@ export const printTransactionInfo = (
 ) => {
   const { balance, blockchain, decimals } = account;
   const { address, fee, value, feeRateUnit, feeRate } = transaction;
-  const amountCoins = value / BigInt(Math.pow(10, decimals));
+  const amountCoins = parseFloat(value.toString()) / Math.pow(10, decimals);
   const amountUsd = (
     (parseFloat(value.toString()) * marketPrice) /
     Math.pow(10, decimals)
@@ -58,7 +59,9 @@ export const printTransactionInfo = (
     Math.pow(10, decimals)
   ).toFixed(2);
   const diff = balance - value - fee;
-  const balanceCoins = diff / BigInt(Math.pow(10, decimals));
+  const balanceCoins = (
+    parseFloat(diff.toString()) / Math.pow(10, decimals)
+  ).toFixed(4);
   const balanceUsd = (
     (parseFloat(diff.toString()) * marketPrice) /
     Math.pow(10, decimals)
@@ -88,8 +91,9 @@ export const printMethodInfo = (
 ) => {
   const { decimals } = account;
   const { address, fee, value, feeRateUnit, feeRate, contractData } = method;
-  const valueInt = parseInt(value);
-  const amountTokens = valueInt / Math.pow(10, contractData.decimals);
+  const amountTokens = (
+    parseFloat(value.toString()) / Math.pow(10, contractData.decimals)
+  ).toFixed(4);
 
   const feeUsd = (
     (parseFloat(fee.toString()) * ethMarketPrice) /
@@ -112,16 +116,23 @@ export const printMethodInfo = (
 };
 
 export const printWebsite = (account: Account) => {
+  const more = "More about your wallet can be faound here: \n";
   if (account.blockchain === Blockchains.ETH) {
     if (account.net === Net.TEST)
-      boxedLog(`https://goerli.etherscan.io/address/${account.address}`);
+      boxedLog(
+        `${more}https://goerli.etherscan.io/address/${account.address}`,
+        "?"
+      );
     if (account.net === Net.MAIN)
-      boxedLog(`https://etherscan.io/address/${account.address}`);
+      boxedLog(`${more}https://etherscan.io/address/${account.address}`, "?");
   }
   if (account.blockchain === Blockchains.BTC) {
     if (account.net === Net.TEST)
-      boxedLog(`https://mempool.space/testnet/address/${account.address}`);
+      boxedLog(
+        `${more}https://mempool.space/testnet/address/${account.address}`,
+        "?"
+      );
     if (account.net === Net.MAIN)
-      boxedLog(`https://mempool.space/address/${account.address}`);
+      boxedLog(`${more}https://mempool.space/address/${account.address}`, "?");
   }
 };

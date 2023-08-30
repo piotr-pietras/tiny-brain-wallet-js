@@ -25,12 +25,12 @@ export const promptSendTransaction = async (context: Context) => {
       if (confirm) {
         try {
           await transaction.signAndSend();
+          promptWalletMenu(context, () =>
+            boxedLog(`Transaction signed!\ntxid:\n   -> ${transaction.txid}`)
+          );
         } catch (err) {
           promptWalletMenu(context, () => boxedLog(err));
         }
-        promptWalletMenu(context, () =>
-          boxedLog(`Transaction signed!\ntxid:\n   -> ${transaction.txid}`)
-        );
       } else {
         promptWalletMenu(context, () => boxedLog("Transaction canceled"));
       }

@@ -52,9 +52,9 @@ export const promptCreateMethod = (context: Context) => {
       const method = new TransferERC20(account as AccountETH, tokens[token]);
 
       try {
-        const v = (
-          parseInt(value) * Math.pow(10, method.contractData.decimals)
-        ).toFixed(0);
+        const v = BigInt(
+          Number(value) * Math.pow(10, method.contractData.decimals)
+        );
         await method.create(address, v, parseInt(feeRate));
         context.wallet.method = method;
         promptCallMethod(context);

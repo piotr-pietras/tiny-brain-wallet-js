@@ -17,7 +17,7 @@ export class TransferERC20 {
   fee: bigint;
   feeRate: number;
   feeRateUnit = "Gwei";
-  value: string;
+  value: bigint;
   address: string;
 
   constructor(account: AccountETH, contract: ContractData) {
@@ -25,7 +25,7 @@ export class TransferERC20 {
     this.contractData = contract;
   }
 
-  public async create(address: string, value: string, feeRate: number) {
+  public async create(address: string, value: bigint, feeRate: number) {
     this.value = value;
     this.address = address;
     this.feeRate = feeRate;
@@ -36,7 +36,7 @@ export class TransferERC20 {
     );
     const methodSignature = contract.interface.encodeFunctionData("transfer", [
       address,
-      value,
+      value.toString(),
     ]);
 
     const { net, wallet } = this.account;
