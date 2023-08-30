@@ -16,18 +16,18 @@ export class TransactionBTC implements Transaction {
   private psbt: Psbt;
 
   txid: string;
+  fee: bigint; //satoshi
   feeRate: number;
-  static feeRateUnit = "sats/vB";
-  fee: number;
-  value: number;
+  feeRateUnit = "sats/vB";
+  value: bigint;
   address: string;
 
   constructor(account: AccountBTC) {
     this.account = account;
   }
 
-  public async create(address: string, value: number, feeRate: number) {
-    this.value = value;
+  public async create(address: string, value: string, feeRate: number) {
+    this.value = BigInt(value);
     this.address = address;
     this.feeRate = feeRate;
 
@@ -36,21 +36,31 @@ export class TransactionBTC implements Transaction {
     const inputs = await this.prepareInputs(utxos);
     if (!utxos.length) throw "No utxos";
 
-    this.fee = await this.calcFee(address, value, inputs, feeRate);
-    const outputs = this.prepareOutputs(address, value, this.fee, this.account);
+    this.fee = await this.calcFee(address, this.value, inputs, feeRate);
+    const outputs = this.prepareOutputs(
+      address,
+      this.value,
+      this.fee,
+      this.account
+    );
     this.psbt = new Psbt({ network }).addInputs(inputs).addOutputs(outputs);
     return this;
   }
 
   private async calcFee(
     address: string,
-    value: number,
+    value: bigint,
     inputs: Input[],
     feeRate: number
   ) {
     const { net, ecPair: ECPair } = this.account;
     const network = this.getNetwork(net);
-    const noFeeOutputs = this.prepareOutputs(address, value, 0, this.account);
+    const noFeeOutputs = this.prepareOutputs(
+      address,
+      value,
+      BigInt(0),
+      this.account
+    );
 
     if (!feeRate || feeRate < 1) throw "Fee rate is invalid";
 
@@ -62,7 +72,7 @@ export class TransactionBTC implements Transaction {
       .finalizeAllInputs()
       .extractTransaction()
       .virtualSize();
-    return feeRate * size;
+    return BigInt(feeRate * size);
   }
 
   private async prepareInputs(utxos: AccountBTC["utxos"]) {
@@ -83,8 +93,8 @@ export class TransactionBTC implements Transaction {
 
   private prepareOutputs(
     address: string,
-    value: number,
-    fee: number,
+    value: bigint,
+    fee: bigint,
     account: AccountBTC
   ) {
     const { balance } = account;
@@ -93,11 +103,11 @@ export class TransactionBTC implements Transaction {
     return [
       {
         address,
-        value,
+        value: Number(value),
       },
       {
         address: account.address,
-        value: balance - value - fee,
+        value: Number(balance - value - fee),
       },
     ];
   }

@@ -3,19 +3,17 @@ import { Blockchains, Net } from "../common/blockchain.types.js";
 import { SigningKey, BaseWallet } from "ethers";
 import { getBalances } from "../api/universal/getBalances.js";
 import { getParams } from "../api/params.js";
-import { getTxCount } from "../api/native/eth/getTxCount.js";
 import { Account } from "./Account.types.js";
 
 export class AccountETH implements Account {
   blockchain = Blockchains.ETH;
   net: Net;
-  balance: number;
+  balance: bigint;
   decimals = 18;
   address: string;
 
   ecPair: SigningKey;
   wallet: BaseWallet;
-  txCount: number;
 
   constructor(phrase: string, net: Net) {
     this.net = net;
@@ -30,7 +28,6 @@ export class AccountETH implements Account {
   }
 
   public async initizalize() {
-    this.txCount = await this.initTxCount();
     this.balance = await this.initBalance();
     return this;
   }
@@ -41,15 +38,9 @@ export class AccountETH implements Account {
       balances[0] &&
       balances[0].currency.symbol.toLowerCase() === this.blockchain
     ) {
-      return parseInt(balances[0].confirmed_balance);
+      return BigInt(balances[0].confirmed_balance);
     }
-    return 0;
-  }
-
-  private async initTxCount() {
-    const countHex = (await getTxCount(this.wallet.address, getParams(this)))
-      .result;
-    return parseInt(countHex);
+    return BigInt(0);
   }
 
   get keysHex() {

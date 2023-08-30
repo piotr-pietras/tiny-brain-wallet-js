@@ -3,7 +3,7 @@ import { Blockchains, Net } from "../common/blockchain.types.js";
 export interface Account {
   blockchain: Blockchains;
   net: Net;
-  balance: number;
+  balance: bigint;
   decimals: number;
   address: string;
 
