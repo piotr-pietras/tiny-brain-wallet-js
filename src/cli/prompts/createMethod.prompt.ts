@@ -4,9 +4,9 @@ import { boxedLog, printWelcome } from "../printable.js";
 import { promptWalletMenu } from "./walletMenu.prompt.js";
 import { AccountETH } from "../../utils/AccountETH.js";
 import { TransferERC20 } from "../../utils/TransferERC20.js";
-import { erc20Test } from "../../common/erc20.test.js";
+import { erc20Test } from "../../common/erc20/erc20.test.js";
 import { promptCallMethod } from "./callMethod.prompt.js";
-import { erc20 } from "../../common/erc20.main.js";
+import { erc20 } from "../../common/erc20/erc20.main.js";
 import { Net } from "../../common/blockchain.types.js";
 
 export const promptCreateMethod = (context: Context) => {

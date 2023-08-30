@@ -3,7 +3,7 @@ import { submitSignedTx } from "../api/universal/submitSignedTx.js";
 import { Net } from "../common/blockchain.types.js";
 import { AccountETH } from "./AccountETH.js";
 import { TransactionRequest } from "ethers";
-import { Priority, Transaction } from "./Transaction.types.js";
+import { Transaction } from "./Transaction.types.js";
 import { getTxCount } from "../api/native/eth/getTxCount.js";
 
 export class TransactionETH implements Transaction {
@@ -17,7 +17,6 @@ export class TransactionETH implements Transaction {
   feeRateUnit = "Gwei";
   value: bigint;
   address: string;
-  priority: Priority;
 
   constructor(account: AccountETH) {
     this.account = account;

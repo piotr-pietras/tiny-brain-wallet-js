@@ -41,7 +41,7 @@ export const promptLoginToWallet = (context: Context) => {
       const mixedPhrase = phraseMixer(phrase, mix, (i, iteration) => {
         console.clear();
         printWelcome();
-        boxedLog(`${Math.ceil(i / iteration * 100)}%`);
+        boxedLog(`${Math.ceil((i / iteration) * 100)}%`);
       });
       switch (blockchain) {
         case Blockchains.BTC:

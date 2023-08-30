@@ -1,3 +1,4 @@
+import { Blockchains, Net } from "../common/blockchain.types.js";
 import { Account } from "../utils/Account.types.js";
 import { Transaction } from "../utils/Transaction.types.js";
 import { TransferERC20 } from "../utils/TransferERC20.js";
@@ -108,4 +109,19 @@ export const printMethodInfo = (
   log("Fee rate:");
   log(`   -> ${feeRate} ${feeRateUnit}`);
   log("-------------------------------------------\n");
+};
+
+export const printWebsite = (account: Account) => {
+  if (account.blockchain === Blockchains.ETH) {
+    if (account.net === Net.TEST)
+      boxedLog(`https://goerli.etherscan.io/address/${account.address}`);
+    if (account.net === Net.MAIN)
+      boxedLog(`https://etherscan.io/address/${account.address}`);
+  }
+  if (account.blockchain === Blockchains.BTC) {
+    if (account.net === Net.TEST)
+      boxedLog(`https://mempool.space/testnet/address/${account.address}`);
+    if (account.net === Net.MAIN)
+      boxedLog(`https://mempool.space/address/${account.address}`);
+  }
 };

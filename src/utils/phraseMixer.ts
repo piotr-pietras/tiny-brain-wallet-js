@@ -1,5 +1,12 @@
 import { sha256 } from "@noble/hashes/sha256";
 
+//It shuffle chars in string to rise entropy
+//Process:
+// - hash char[0] + char[center] + char[last] + iteration
+// - sum up bytes of sha256 to get shift
+// - search for char in string via index charCode() + index + shift
+// - pop char from string & push it to new string
+
 const mix = (phrase: string, iteration: number) => {
   const mixed = [];
   const array = phrase.split("");
@@ -28,7 +35,7 @@ const mix = (phrase: string, iteration: number) => {
     mixed.push(char);
     array.splice(index, 1);
 
-    const nextIndex = forward >= size ? forward % size : code + index + shift;
+    const nextIndex = forward >= size ? forward % size : forward;
     index = nextIndex;
   }
 

@@ -5,6 +5,7 @@ import {
   boxedLog,
   printBalance,
   printKeys,
+  printWebsite,
   printWelcome,
 } from "../printable.js";
 import { promptCreateTransaction } from "./createTransaction.prompt.js";
@@ -46,6 +47,7 @@ export const promptWalletMenu = async (
   const { account } = context.wallet;
   const { blockchain, net, address, keysHex } = account;
   const utxos = blockchain === Blockchains.BTC && (account as AccountBTC).utxos;
+  printWebsite(account);
 
   inq
     .prompt([

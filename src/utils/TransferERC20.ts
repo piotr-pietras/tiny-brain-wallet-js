@@ -2,10 +2,9 @@ import { getParams } from "../api/params.js";
 import { submitSignedTx } from "../api/universal/submitSignedTx.js";
 import { Net } from "../common/blockchain.types.js";
 import { AccountETH } from "./AccountETH.js";
-import { TransactionRequest, Contract, ethers } from "ethers";
-import { Priority } from "./Transaction.types.js";
+import { TransactionRequest, Contract } from "ethers";
 import { getTxCount } from "../api/native/eth/getTxCount.js";
-import { ContractData } from "../common/erc20.types.js";
+import { ContractData } from "../common/erc20/erc20.types.js";
 import { estimateTxGas } from "../api/native/eth/estimateTxGas.js";
 
 export class TransferERC20 {
@@ -20,7 +19,6 @@ export class TransferERC20 {
   feeRateUnit = "Gwei";
   value: string;
   address: string;
-  priority: Priority;
 
   constructor(account: AccountETH, contract: ContractData) {
     this.account = account;

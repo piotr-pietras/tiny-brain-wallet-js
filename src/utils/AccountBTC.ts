@@ -25,7 +25,7 @@ export class AccountBTC implements Account {
 
   constructor(phrase: string, net: Net) {
     this.net = net;
-    const network = Net.MAIN ? networks.bitcoin : networks.testnet;
+    const network = this.net === Net.MAIN ? networks.bitcoin : networks.testnet;
     const privKey = this.phraseToPrivKey(phrase);
     this.ecPair = ECPair.fromPrivateKey(privKey, { network });
     this.address = payments.p2pkh({
