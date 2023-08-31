@@ -1,10 +1,12 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { Blockchains, Net } from "../common/blockchain.types.js";
-import { ECPair, ECPairInterface, networks, payments } from "bitcoinjs-lib";
+import { networks, payments } from "bitcoinjs-lib";
+import { ECPairInterface, ECPairFactory } from "ecpair";
 import { getListOfTx } from "../api/universal/getListOfUtxo.js";
 import { getParams } from "../api/params.js";
 import { Account } from "./Account.types.js";
 import { getBalances } from "../api/universal/getBalances.js";
+import * as secp256k1 from "tiny-secp256k1";
 
 interface UTXO {
   txid: string;
@@ -27,6 +29,7 @@ export class AccountBTC implements Account {
     this.net = net;
     const network = this.net === Net.MAIN ? networks.bitcoin : networks.testnet;
     const privKey = this.phraseToPrivKey(phrase);
+    const ECPair = ECPairFactory(secp256k1);
     this.ecPair = ECPair.fromPrivateKey(privKey, { network });
     this.address = payments.p2pkh({
       network,

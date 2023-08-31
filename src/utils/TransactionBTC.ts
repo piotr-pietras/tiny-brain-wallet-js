@@ -5,6 +5,8 @@ import { AccountBTC } from "./AccountBTC.js";
 import { Psbt, networks } from "bitcoinjs-lib";
 import { Transaction } from "./Transaction.types.js";
 import { Net } from "../common/blockchain.types.js";
+import { ECPairFactory } from "ecpair";
+import * as secp256k1 from "tiny-secp256k1";
 interface Input {
   hash: string;
   index: number;
@@ -115,8 +117,16 @@ export class TransactionBTC implements Transaction {
   public async signAndSend() {
     const { ecPair: ECPair } = this.account;
     this.psbt.signAllInputs(ECPair);
-    if (!this.psbt.validateSignaturesOfAllInputs())
+
+    const validator = (
+      pubkey: Buffer,
+      msghash: Buffer,
+      signature: Buffer
+    ): boolean =>
+      ECPairFactory(secp256k1).fromPublicKey(pubkey).verify(msghash, signature);
+    if (!this.psbt.validateSignaturesOfAllInputs(validator))
       throw "Signatures not validated";
+
     this.psbt.finalizeAllInputs();
 
     const tx = this.psbt.extractTransaction().toHex();
