@@ -46,6 +46,7 @@ export class TransactionBTC implements Transaction {
       this.account
     );
     this.psbt = new Psbt({ network }).addInputs(inputs).addOutputs(outputs);
+    inputs.forEach((_, i) => this.psbt.setInputSequence(i, 0xFFFFFFFF - 2));
     return this;
   }
 
