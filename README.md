@@ -7,6 +7,11 @@ https://github.com/piotr-pietras/tiny-brain-wallet-js/assets/80528901/70293f5c-1
 
 #### Start
 
+Retrieve your own api key from [Block Daemon](https://www.blockdaemon.com/)
+and paste it into `src/api/api.const.ts`
+
+then
+
 ```
 npm i
 npm run build
@@ -16,7 +21,8 @@ npm run start
 #### Current features
 
 - btc transaction (only p2pkh at this moment)
-- eth transaction (erc20 is coming...)
+- eth transaction
+- erc20 transfer method (more methods are coming)
 
 #### Vision
 
