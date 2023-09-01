@@ -28,7 +28,7 @@ export const getTxCount = (
       res.on("data", (chunk) => (data = Buffer.concat([data, chunk])));
       res.on("end", () => {
         const json = JSON.parse(data.toString());
-        if (json?.status) reject(json);
+        if (json?.error) reject(json);
         resolver(json);
       });
     });
