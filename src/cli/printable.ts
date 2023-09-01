@@ -34,14 +34,6 @@ export const printKeys = (keys: { priv: string; pub: string }) => {
   log("-------------------------------------------\n");
 };
 
-export const printBalance = (account: Account) => {
-  const { balance, decimals, blockchain } = account;
-  const priceConfirmed = balance / BigInt(Math.pow(10, decimals));
-  log("\n-------------------------------------------");
-  log(`Balance: ${balance} (${priceConfirmed} ${blockchain})`);
-  log("-------------------------------------------\n");
-};
-
 export const printTransactionInfo = (
   account: Account,
   transaction: Transaction,

@@ -3,7 +3,6 @@ import { Context } from "../context.js";
 import { promptMainMenu } from "./mainMenu.prompt.js";
 import {
   boxedLog,
-  printBalance,
   printKeys,
   printWebsite,
   printWelcome,
@@ -15,8 +14,7 @@ import { promptCreateMethod } from "./createMethod.prompt.js";
 
 enum ChoicesCommon {
   TRANSACTION = "Make transaction",
-  BALANCE = "Check balance",
-  KEYS = "Show your keys (unsafe)",
+  KEYS = "Show your keys",
   LOGOUT = "Logout",
 }
 enum ChoicesBTC {
@@ -30,7 +28,7 @@ type Choices = (ChoicesCommon | ChoicesBTC | ChoicesETH)[];
 const getChoices = (blockchain: Blockchains) => {
   const choices: Choices = [...Object.values(ChoicesCommon)];
   blockchain === Blockchains.BTC &&
-    choices.splice(2, 0, ...Object.values(ChoicesBTC));
+    choices.splice(1, 0, ...Object.values(ChoicesBTC));
   blockchain === Blockchains.ETH &&
     choices.splice(1, 0, ...Object.values(ChoicesETH));
   return choices;
@@ -66,10 +64,6 @@ export const promptWalletMenu = async (
         case ChoicesETH.ERC20:
           await account.initizalize();
           promptCreateMethod(context);
-          break;
-        case ChoicesCommon.BALANCE:
-          await account.initizalize();
-          promptWalletMenu(context, () => printBalance(account));
           break;
         case ChoicesBTC.UTXOS:
           await account.initizalize();
