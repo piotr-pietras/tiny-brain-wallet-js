@@ -28,12 +28,12 @@ export const promptLoginToWallet = (context: Context) => {
       {
         name: "phrase",
         message: "3)Type your phrases\n->",
-        type: "input",
+        type: "password",
       },
       {
         name: "mix",
         message: "4)Type your mix number (bigger than 10^4)\n->",
-        type: "input",
+        type: "password",
       },
     ])
     .then(async ({ blockchain, net, phrase, mix }) => {
